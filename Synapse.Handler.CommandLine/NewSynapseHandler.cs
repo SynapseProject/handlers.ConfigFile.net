@@ -10,7 +10,7 @@ using System.IO;
 
 using Synapse.Core;
 
-namespace Synapse.Handler.ConfigFile
+namespace Synapse.Handlers
 {
     public class NewSynapseHandler : HandlerRuntimeBase
     {
