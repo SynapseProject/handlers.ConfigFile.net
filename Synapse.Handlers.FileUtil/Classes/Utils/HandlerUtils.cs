@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using Synapse.Core;
 using Synapse.Core.Utilities;
 
-namespace Synapse.Handlers.ConfigFile
+namespace Synapse.Handlers.FileUtil
 {
     public static class HandlerUtils
     {

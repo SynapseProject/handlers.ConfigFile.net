@@ -7,8 +7,8 @@
     <ProjectGuid>{2D2E61B0-B344-4448-ADF7-743F26A0A8C0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Synapse.Handlers.ConfigFile</RootNamespace>
-    <AssemblyName>Synapse.Handler.ConfigFile</AssemblyName>
+    <RootNamespace>Synapse.Handlers.FileUtil</RootNamespace>
+    <AssemblyName>Synapse.Handlers.FileUtil</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -49,11 +49,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\HandlerConfig.cs" />
-    <Compile Include="Classes\HandlerParameters.cs" />
+    <Compile Include="Classes\DeleteFileHandlerConfig.cs" />
+    <Compile Include="Classes\CopyFileHandlerConfig.cs" />
+    <Compile Include="Classes\DeleteFileHandlerParameters.cs" />
+    <Compile Include="Classes\ModifyFileHandlerConfig.cs" />
+    <Compile Include="Classes\CopyFileHandlerParameters.cs" />
+    <Compile Include="Classes\ModifyFileHandlerParameters.cs" />
     <Compile Include="Classes\Utils\HandlerUtils.cs" />
+    <Compile Include="DeleteFileHandler.cs" />
+    <Compile Include="CopyFileHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConfigFileHandler.cs" />
+    <Compile Include="ModifyFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

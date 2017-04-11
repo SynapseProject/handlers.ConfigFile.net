@@ -13,9 +13,9 @@ using YamlDotNet.Serialization;
 
 using Synapse.Core.Utilities;
 
-namespace Synapse.Handlers.ConfigFile
+namespace Synapse.Handlers.FileUtil
 {
-    public class HandlerConfig
+    public class CopyFileHandlerConfig
     {
         [XmlElement]
         public String Arguments { get; set; }

@@ -7,15 +7,18 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
 
+using Synapse.Core;
+
 using YamlDotNet.Serialization;
 
 using Synapse.Core.Utilities;
 
-namespace Synapse.Handlers.ConfigFile
+namespace Synapse.Handlers.FileUtil
 {
-    public class HandlerParameters
+    public class ModifyFileHandlerConfig
     {
         [XmlElement]
         public String Arguments { get; set; }
     }
+
 }
