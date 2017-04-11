@@ -49,8 +49,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\HandlerConfig.cs" />
+    <Compile Include="Classes\HandlerParameters.cs" />
+    <Compile Include="Classes\Utils\HandlerUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="NewSynapseHandler.cs" />
+    <Compile Include="ConfigFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
