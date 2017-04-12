@@ -15,10 +15,19 @@ using Synapse.Core.Utilities;
 
 namespace Synapse.Handlers.FileUtil
 {
+    [XmlRoot(ElementName="Root")]
     public class CopyFileHandlerConfig
     {
         [XmlElement]
-        public String Arguments { get; set; }
+        public FileAction Action { get; set; } = FileAction.Copy;
+        [XmlElement]
+        public bool OverwriteExisting { get; set; } = true;
+        [XmlElement]
+        public bool IncludeSubdirectories { get; set; } = true;
+        [XmlElement]
+        public bool MaintainAttributes { get; set; } = true;
+        [XmlElement]
+        public bool PurgeDestination { get; set; } = false;
     }
 
 }

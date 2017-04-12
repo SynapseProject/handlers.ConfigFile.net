@@ -30,10 +30,24 @@ public class CopyFileHandler : HandlerRuntimeBase
         if (startInfo.Parameters != null)
             parameters = HandlerUtils.Deserialize<CopyFileHandlerParameters>(startInfo.Parameters);
 
-        OnLogMessage("Main", "Config >> " + config.Arguments);
-        OnLogMessage("Main", "Params >> " + parameters.Arguments);
+        CopyUtil util = new CopyUtil(config);
+
+        foreach(FileSet set in parameters.FileSets)
+            foreach(String source in set.Sources)
+                foreach (String destination in set.Destinations)
+                {
+                    if (config.Action == FileAction.Copy)
+                        util.Copy(source, destination, "Copy", Logger, startInfo.IsDryRun);
+                    else
+                        util.Move(source, destination, "Move", Logger, startInfo.IsDryRun);
+                }
 
         return result;
+    }
+
+    public void Logger(String context, String message)
+    {
+        OnLogMessage(context, message);
     }
 }
 

@@ -13,9 +13,18 @@ using Synapse.Core.Utilities;
 
 namespace Synapse.Handlers.FileUtil
 {
+    [XmlRoot(ElementName="Root")]
     public class CopyFileHandlerParameters
     {
-        [XmlElement]
-        public String Arguments { get; set; }
+        [XmlArrayItem("ElementName")]
+        public List<FileSet> FileSets { get; set; }
+    }
+
+    public class FileSet
+    {
+        [XmlArrayItem(ElementName = "Source")]
+        public List<String> Sources { get; set; }
+        [XmlArrayItem(ElementName = "Destination")]
+        public List<String> Destinations { get; set; }
     }
 }
