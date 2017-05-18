@@ -28,6 +28,8 @@ namespace Synapse.Handlers.FileUtil
         public bool MaintainAttributes { get; set; } = true;
         [XmlElement]
         public bool PurgeDestination { get; set; } = false;
+        [XmlElement]
+        public bool Verbose { get; set; } = true;
     }
 
 }

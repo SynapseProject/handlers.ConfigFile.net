@@ -22,6 +22,18 @@ public class ModifyFileHandler : HandlerRuntimeBase
         return base.Initialize(configStr);
     }
 
+    public override object GetConfigInstance()
+    {
+        //TODO : Implement Me
+        throw new NotImplementedException();
+    }
+
+    public override object GetParametersInstance()
+    {
+        //TODO : Implement Me
+        throw new NotImplementedException();
+    }
+
     public override ExecuteResult Execute(HandlerStartInfo startInfo)
     {
         ExecuteResult result = null;
