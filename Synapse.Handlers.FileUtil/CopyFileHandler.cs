@@ -42,17 +42,24 @@ public class CopyFileHandler : HandlerRuntimeBase
         if (startInfo.Parameters != null)
             parameters = HandlerUtils.Deserialize<CopyFileHandlerParameters>(startInfo.Parameters);
 
-        CopyUtil util = new CopyUtil(config);
+        bool isValid = Validate();
 
-        foreach(FileSet set in parameters.FileSets)
-            foreach(String source in set.Sources)
-                foreach (String destination in set.Destinations)
-                {
-                    if (config.Action == FileAction.Copy)
-                        util.Copy(source, destination, "Copy", Logger, startInfo.IsDryRun);
-                    else
-                        util.Move(source, destination, "Move", Logger, startInfo.IsDryRun);
-                }
+        if (isValid)
+        {
+            CopyUtil util = new CopyUtil(config);
+
+            foreach (FileSet set in parameters.FileSets)
+                foreach (String source in set.Sources)
+                    foreach (String destination in set.Destinations)
+                    {
+                        if (config.Action == FileAction.Copy)
+                            util.Copy(source, destination, "Copy", Logger, startInfo.IsDryRun);
+                        else
+                            util.Move(source, destination, "Move", Logger, startInfo.IsDryRun);
+                    }
+        }
+        else
+            throw new Exception("Invalid Input Received");
 
         return result;
     }
@@ -60,6 +67,19 @@ public class CopyFileHandler : HandlerRuntimeBase
     public void Logger(String context, String message)
     {
         OnLogMessage(context, message);
+    }
+
+    private bool Validate()
+    {
+        bool isValid = true;
+        foreach (FileSet set in parameters.FileSets)
+            if (config.Action == FileAction.Move && set.Destinations.Count > 1)
+            {
+                OnLogMessage("Validate", "Cannot Have Multiple Destinations On A Move Action");
+                isValid = false;
+            }
+
+        return isValid;
     }
 }
 

@@ -14,6 +14,7 @@ namespace Synapse.Handlers.FileUtil
         public bool IncludeSubdirectories { get; set; } = true;
         public bool MaintainAttributes { get; set; } = true;
         public bool PurgeDestination { get; set; } = false;
+        public bool Verbose { get; set; } = true;
 
         public String CallbackLabel { get; set; }
         public Action<string, string> Callback { get; set; }
@@ -26,6 +27,7 @@ namespace Synapse.Handlers.FileUtil
             IncludeSubdirectories = config.IncludeSubdirectories;
             MaintainAttributes = config.MaintainAttributes;
             PurgeDestination = config.PurgeDestination;
+            Verbose = config.Verbose;
         }
 
         public void Copy(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
@@ -43,6 +45,9 @@ namespace Synapse.Handlers.FileUtil
             Callback = callback;
             CallbackLabel = callbackLabel;
 
+            if (dryRun)
+                CallbackLabel = CallbackLabel + " - DryRun";
+
             FileType sourceType = GetType(source);
             FileType destinationType = GetType(destination);
 
@@ -58,7 +63,7 @@ namespace Synapse.Handlers.FileUtil
                 }
 
                 String dirPath = Path.GetDirectoryName(destination);
-                if (!Directory.Exists(dirPath))
+                if (!Directory.Exists(dirPath) && !dryRun)
                     Directory.CreateDirectory(dirPath);
 
                 switch (sourceType)
@@ -72,12 +77,14 @@ namespace Synapse.Handlers.FileUtil
 
                         if (action == FileAction.Copy)
                         {
-                            File.Copy(source, destination, copyOptions, MaintainAttributes, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            if (!dryRun)
+                                File.Copy(source, destination, copyOptions, MaintainAttributes, CopyMoveProgressHandler, null, PathFormat.FullPath);
                             Callback?.Invoke(CallbackLabel, "Copied File [" + source + "] To File [" + destination + "].");
                         }
                         else
                         {
-                            File.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            if (!dryRun)
+                               File.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
                             Callback?.Invoke(CallbackLabel, "Moved File [" + source + "] To File [" + destination + "].");
                         }
                         break;
@@ -90,12 +97,24 @@ namespace Synapse.Handlers.FileUtil
 
                         if (action == FileAction.Copy)
                         {
-                            Directory.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            if (Verbose)
+                            {
+                                Callback?.Invoke(CallbackLabel, "Contents of Directory [" + source + "]");
+                                ListContents(source);
+                            }
+                            if (!dryRun)
+                                Directory.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
                             Callback?.Invoke(CallbackLabel, "Copied Directory [" + source + "] To Directory [" + destination + "].");
                         }
                         else
                         {
-                            Directory.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            if (Verbose)
+                            {
+                                Callback?.Invoke(CallbackLabel, "Contents of Directory [" + source + "]");
+                                ListContents(source);
+                            }
+                            if (!dryRun)
+                                Directory.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
                             Callback?.Invoke(CallbackLabel, "Moved Directory [" + source + "] To Directory [" + destination + "].");
                         }
                         break;
@@ -142,6 +161,36 @@ namespace Synapse.Handlers.FileUtil
             return CopyMoveProgressResult.Continue;
         }
 
+        private void ListContents(String path, int depth = 1, int indention = 2)
+        {
+            DirectoryInfo dir = new DirectoryInfo(path);
+            if (dir.Exists)
+                ListContents(dir, depth, indention);
+        }
+
+        private void ListContents(DirectoryInfo dir, int depth = 1, int indention = 2)
+        {
+            if (dir != null)
+            {
+                DirectoryInfo[] dirs = dir.GetDirectories();
+                foreach (DirectoryInfo d in dirs)
+                {
+                    Callback?.Invoke(CallbackLabel, Indent(depth, indention, d.FullName));
+                    ListContents(d, depth + 1, indention);
+                }
+
+                FileInfo[] files = dir.GetFiles();
+                foreach (FileInfo file in files)
+                {
+                    Callback?.Invoke(CallbackLabel, Indent(depth, indention, file.FullName));
+                }
+            }
+        }
+
+        private String Indent(int depth, int indention, String msg)
+        {
+            return msg.PadLeft((msg.Length + (depth * indention)), ' ');
+        }
 
     }
 }
