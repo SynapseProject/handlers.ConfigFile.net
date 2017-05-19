@@ -72,12 +72,12 @@ namespace Synapse.Handlers.FileUtil
             try
             {
                 CopyOptions copyOptions = CopyOptions.FailIfExists;
-                MoveOptions moveOptions = MoveOptions.None;
+                MoveOptions moveOptions = MoveOptions.CopyAllowed | MoveOptions.WriteThrough;
 
                 if (OverwriteExisting)
                 {
                     copyOptions = CopyOptions.None;
-                    moveOptions = MoveOptions.ReplaceExisting;
+                    moveOptions |= MoveOptions.ReplaceExisting;
                 }
 
                 String dirPath = Path.GetDirectoryName(destination);
