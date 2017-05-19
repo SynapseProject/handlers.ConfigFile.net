@@ -25,8 +25,6 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool IncludeSubdirectories { get; set; } = true;
         [XmlElement]
-        public bool MaintainAttributes { get; set; } = true;
-        [XmlElement]
         public bool PurgeDestination { get; set; } = false;
         [XmlElement]
         public bool Verbose { get; set; } = true;

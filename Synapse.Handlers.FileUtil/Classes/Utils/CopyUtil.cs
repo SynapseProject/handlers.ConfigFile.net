@@ -12,7 +12,6 @@ namespace Synapse.Handlers.FileUtil
     {
         public bool OverwriteExisting { get; set; } = true;
         public bool IncludeSubdirectories { get; set; } = true;
-        public bool MaintainAttributes { get; set; } = true;
         public bool PurgeDestination { get; set; } = false;
         public bool Verbose { get; set; } = true;
 
@@ -25,22 +24,11 @@ namespace Synapse.Handlers.FileUtil
         {
             OverwriteExisting = config.OverwriteExisting;
             IncludeSubdirectories = config.IncludeSubdirectories;
-            MaintainAttributes = config.MaintainAttributes;
             PurgeDestination = config.PurgeDestination;
             Verbose = config.Verbose;
         }
 
         public void Copy(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
-        {
-            DoAction(FileAction.Copy, source, destination, callbackLabel, callback, dryRun);
-        }
-
-        public void Move(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
-        {
-            DoAction(FileAction.Move, source, destination, callbackLabel, callback, dryRun);
-        }
-
-        private void DoAction(FileAction action, String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
         {
             Callback = callback;
             CallbackLabel = callbackLabel;
@@ -48,6 +36,36 @@ namespace Synapse.Handlers.FileUtil
             if (dryRun)
                 CallbackLabel = CallbackLabel + " - DryRun";
 
+            if (PurgeDestination)
+            {
+                Callback?.Invoke(CallbackLabel, "Purging Directory [" + destination + "]");
+                if (!dryRun && Directory.Exists(destination))
+                    Directory.Delete(destination, true);
+            }
+
+            DoAction(FileAction.Copy, source, destination, dryRun);
+        }
+
+        public void Move(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
+        {
+            Callback = callback;
+            CallbackLabel = callbackLabel;
+
+            if (dryRun)
+                CallbackLabel = CallbackLabel + " - DryRun";
+
+            if (PurgeDestination)
+            {
+                Callback?.Invoke(CallbackLabel, "Purging Directory [" + destination + "]");
+                if (!dryRun && Directory.Exists(destination))
+                    Directory.Delete(destination, true);
+            }
+
+            DoAction(FileAction.Move, source, destination, dryRun);
+        }
+
+        private void DoAction(FileAction action, String source, String destination, bool dryRun = false)
+        {
             FileType sourceType = GetType(source);
             FileType destinationType = GetType(destination);
 
@@ -63,8 +81,12 @@ namespace Synapse.Handlers.FileUtil
                 }
 
                 String dirPath = Path.GetDirectoryName(destination);
-                if (!Directory.Exists(dirPath) && !dryRun)
-                    Directory.CreateDirectory(dirPath);
+                if (!Directory.Exists(dirPath))
+                {
+                    if (!dryRun)
+                        Directory.CreateDirectory(dirPath);
+                    Callback?.Invoke(CallbackLabel, "Directory [" + dirPath + "] Created.");
+                }
 
                 switch (sourceType)
                 {
@@ -78,8 +100,8 @@ namespace Synapse.Handlers.FileUtil
                         if (action == FileAction.Copy)
                         {
                             if (!dryRun)
-                                File.Copy(source, destination, copyOptions, MaintainAttributes, CopyMoveProgressHandler, null, PathFormat.FullPath);
-                            Callback?.Invoke(CallbackLabel, "Copied File [" + source + "] To File [" + destination + "].");
+                                File.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                        Callback?.Invoke(CallbackLabel, "Copied File [" + source + "] To File [" + destination + "].");
                         }
                         else
                         {
@@ -95,7 +117,27 @@ namespace Synapse.Handlers.FileUtil
                             break;
                         }
 
-                        if (action == FileAction.Copy)
+                        if (IncludeSubdirectories == false)
+                        {
+                            // Only Grab Files From Source Directory
+                            DirectoryInfo dirInfo = new DirectoryInfo(source);
+                            FileInfo[] files = dirInfo.GetFiles();
+                            foreach (FileInfo file in files)
+                                DoAction(action, file.FullName, destination, dryRun);
+
+                            DirectoryInfo[] sourceDirs = dirInfo.GetDirectories();
+                            foreach (DirectoryInfo sourceDir in sourceDirs)
+                            {
+                                DirectoryInfo destDir = new DirectoryInfo(Path.Combine(destination, sourceDir.Name));
+                                if (!destDir.Exists)
+                                {
+                                    if (!dryRun)
+                                        destDir.Create();
+                                    Callback?.Invoke(CallbackLabel, "Directory [" + destDir.FullName + "] Created.");
+                                }
+                            }
+                        }
+                        else if (action == FileAction.Copy)
                         {
                             if (Verbose)
                             {
@@ -122,7 +164,7 @@ namespace Synapse.Handlers.FileUtil
             }
             catch (Exception ex)
             {
-                callback?.Invoke(callbackLabel, "Copy Failed On - Source:[" + source + "] [to] Destination:[" + destination + "]");
+                Callback?.Invoke(CallbackLabel, "Copy Failed On - Source:[" + source + "] [to] Destination:[" + destination + "]");
                 throw ex;
             }
         }
