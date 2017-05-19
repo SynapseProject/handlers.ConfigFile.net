@@ -84,10 +84,15 @@ namespace Synapse.Handlers.FileUtil
                 if (!Directory.Exists(dirPath))
                 {
                     if (!dryRun)
+                    {
                         Directory.CreateDirectory(dirPath);
-                    Callback?.Invoke(CallbackLabel, "Directory [" + dirPath + "] Created.");
+                        Callback?.Invoke(CallbackLabel, "Directory [" + dirPath + "] Created.");
+                    }
+                    else
+                        Callback?.Invoke(CallbackLabel, "Directory [" + dirPath + "] Will Be Created.");
                 }
 
+                CopyMoveResult result = null;
                 switch (sourceType)
                 {
                     case FileType.File:
@@ -97,17 +102,12 @@ namespace Synapse.Handlers.FileUtil
                             destination = Path.Combine(destination, fileName);
                         }
 
-                        if (action == FileAction.Copy)
+                        if (!dryRun)
                         {
-                            if (!dryRun)
-                                File.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
-                        Callback?.Invoke(CallbackLabel, "Copied File [" + source + "] To File [" + destination + "].");
-                        }
-                        else
-                        {
-                            if (!dryRun)
-                               File.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
-                            Callback?.Invoke(CallbackLabel, "Moved File [" + source + "] To File [" + destination + "].");
+                            if (action == FileAction.Copy)
+                                result = File.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            else
+                                result = File.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
                         }
                         break;
                     case FileType.Directory:
@@ -119,7 +119,7 @@ namespace Synapse.Handlers.FileUtil
 
                         if (IncludeSubdirectories == false)
                         {
-                            // Only Grab Files From Source Directory
+                            // Only Grab Files and Top-Level Directories From Source Directory
                             DirectoryInfo dirInfo = new DirectoryInfo(source);
                             FileInfo[] files = dirInfo.GetFiles();
                             foreach (FileInfo file in files)
@@ -132,21 +132,14 @@ namespace Synapse.Handlers.FileUtil
                                 if (!destDir.Exists)
                                 {
                                     if (!dryRun)
+                                    {
                                         destDir.Create();
-                                    Callback?.Invoke(CallbackLabel, "Directory [" + destDir.FullName + "] Created.");
+                                        Callback?.Invoke(CallbackLabel, "Directory [" + destDir.FullName + "] Created.");
+                                    }
+                                    else
+                                        Callback?.Invoke(CallbackLabel, "Directory [" + destDir.FullName + "] Will Be Created.");
                                 }
                             }
-                        }
-                        else if (action == FileAction.Copy)
-                        {
-                            if (Verbose)
-                            {
-                                Callback?.Invoke(CallbackLabel, "Contents of Directory [" + source + "]");
-                                ListContents(source);
-                            }
-                            if (!dryRun)
-                                Directory.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
-                            Callback?.Invoke(CallbackLabel, "Copied Directory [" + source + "] To Directory [" + destination + "].");
                         }
                         else
                         {
@@ -155,12 +148,27 @@ namespace Synapse.Handlers.FileUtil
                                 Callback?.Invoke(CallbackLabel, "Contents of Directory [" + source + "]");
                                 ListContents(source);
                             }
+
                             if (!dryRun)
-                                Directory.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
-                            Callback?.Invoke(CallbackLabel, "Moved Directory [" + source + "] To Directory [" + destination + "].");
+                            {
+                                if (action == FileAction.Copy)
+                                    result = Directory.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                                else
+                                    result = Directory.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                            }
                         }
                         break;
                 }
+
+                String message = String.Empty;
+                if (dryRun)
+                    message = String.Format("{0} {1} [{2}] To {1} [{3}].", (action == FileAction.Move ? "Will Move" : "Will Copy"), sourceType, source, destination);
+                else if (result.ErrorCode == 0)
+                    message = String.Format("{0} {1} [{2}] To {1} [{3}].", (action == FileAction.Move ? "Moved" : "Copied"), sourceType, source, destination);
+                else
+                    message = String.Format("ERROR : {0} - Source: [{1}], Destination[{2}]", result.ErrorMessage, result.Source, result.Destination);
+
+                Callback?.Invoke(CallbackLabel, message);
             }
             catch (Exception ex)
             {
