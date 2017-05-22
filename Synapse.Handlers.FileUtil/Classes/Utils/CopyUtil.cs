@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 using Alphaleonis.Win32.Filesystem;
+
 
 namespace Synapse.Handlers.FileUtil
 {
@@ -18,6 +20,10 @@ namespace Synapse.Handlers.FileUtil
         public String CallbackLabel { get; set; }
         public Action<string, string> Callback { get; set; }
 
+        private bool useTransaction = false;
+        private TransactionScope transactionScope = null;
+        private KernelTransaction kernelTransaction = null;
+
         public CopyUtil() { }
 
         public CopyUtil(CopyFileHandlerConfig config)
@@ -26,6 +32,25 @@ namespace Synapse.Handlers.FileUtil
             IncludeSubdirectories = config.IncludeSubdirectories;
             PurgeDestination = config.PurgeDestination;
             Verbose = config.Verbose;
+        }
+
+        public void StartTransaction()
+        {
+            useTransaction = true;
+            transactionScope = new TransactionScope(TransactionScopeOption.RequiresNew);
+            kernelTransaction = new KernelTransaction(Transaction.Current);
+        }
+
+        public void StopTransaction()
+        {
+            useTransaction = false;
+            transactionScope.Complete();
+
+            kernelTransaction.Dispose();
+            kernelTransaction = null;
+
+            transactionScope.Dispose();
+            transactionScope = null;
         }
 
         public void Copy(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
@@ -85,7 +110,7 @@ namespace Synapse.Handlers.FileUtil
                 {
                     if (!dryRun)
                     {
-                        Directory.CreateDirectory(dirPath);
+                        CreateDirectory(dirPath);
                         Callback?.Invoke(CallbackLabel, "Directory [" + dirPath + "] Created.");
                     }
                     else
@@ -105,9 +130,9 @@ namespace Synapse.Handlers.FileUtil
                         if (!dryRun)
                         {
                             if (action == FileAction.Copy)
-                                result = File.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                                result = CopyFile(source, destination, copyOptions);
                             else
-                                result = File.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                                result = MoveFile(source, destination, moveOptions);
                         }
                         break;
                     case FileType.Directory:
@@ -133,7 +158,7 @@ namespace Synapse.Handlers.FileUtil
                                 {
                                     if (!dryRun)
                                     {
-                                        destDir.Create();
+                                        CreateDirectory(destDir.FullName);
                                         Callback?.Invoke(CallbackLabel, "Directory [" + destDir.FullName + "] Created.");
                                     }
                                     else
@@ -143,18 +168,17 @@ namespace Synapse.Handlers.FileUtil
                         }
                         else
                         {
-                            if (Verbose)
+                            if (dryRun && Verbose)
                             {
-                                Callback?.Invoke(CallbackLabel, "Contents of Directory [" + source + "]");
                                 ListContents(source);
                             }
 
                             if (!dryRun)
                             {
                                 if (action == FileAction.Copy)
-                                    result = Directory.Copy(source, destination, copyOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                                    result = CopyDirectory(source, destination, copyOptions);
                                 else
-                                    result = Directory.Move(source, destination, moveOptions, CopyMoveProgressHandler, null, PathFormat.FullPath);
+                                    result = MoveDirectory(source, destination, moveOptions);
                             }
                         }
                         break;
@@ -162,9 +186,9 @@ namespace Synapse.Handlers.FileUtil
 
                 String message = String.Empty;
                 if (dryRun)
-                    message = String.Format("{0} {1} [{2}] To {1} [{3}].", (action == FileAction.Move ? "Will Move" : "Will Copy"), sourceType, source, destination);
+                    message = String.Format("{0} {1}: [{2}] To [{3}].", (action == FileAction.Move ? "Will Move" : "Will Copy"), sourceType, source, destination);
                 else if (result.ErrorCode == 0)
-                    message = String.Format("{0} {1} [{2}] To {1} [{3}].", (action == FileAction.Move ? "Moved" : "Copied"), sourceType, source, destination);
+                    message = String.Format("{0} {1}: [{2}] To [{3}].", (action == FileAction.Move ? "Moved" : "Copied"), sourceType, source, destination);
                 else
                     message = String.Format("ERROR : {0} - Source: [{1}], Destination[{2}]", result.ErrorMessage, result.Source, result.Destination);
 
@@ -202,37 +226,84 @@ namespace Synapse.Handlers.FileUtil
             long streamSize, long streamBytesTransferred, int streamNumber,
             CopyMoveProgressCallbackReason callbackReason, object userData)
         {
-            if (userData != null)
+            if (userData != null && Verbose)
             {
                 string[] files = userData.ToString().Split('|');
-                Callback?.Invoke(CallbackLabel, string.Format("Copied file: {0}  [to]  {1}", files[0], files[1]));
+                Callback?.Invoke(CallbackLabel, string.Format("Copied File: [{0}] to [{1}]", files[0], files[1]));
             }
 
             return CopyMoveProgressResult.Continue;
         }
 
-        private void ListContents(String path, int depth = 1, int indention = 2)
+        private void CreateDirectory(String dirPath)
+        {
+            if (useTransaction)
+                Directory.CreateDirectoryTransacted(kernelTransaction, dirPath);
+            else
+                Directory.CreateDirectory(dirPath);
+        }
+
+        private CopyMoveResult CopyFile(String source, String destination, CopyOptions options)
+        {
+            CopyMoveResult result = null;
+            if (useTransaction)
+                result = File.CopyTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            else
+                result = File.Copy(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            return result;
+        }
+
+        private CopyMoveResult MoveFile(String source, String destination, MoveOptions options)
+        {
+            CopyMoveResult result = null;
+            if (useTransaction)
+                result = File.MoveTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            else
+                result = File.Move(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            return result;
+        }
+
+        private CopyMoveResult CopyDirectory(String source, String destination, CopyOptions options)
+        {
+            CopyMoveResult result = null;
+            if (useTransaction)
+                result = Directory.CopyTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            else
+                result = Directory.Copy(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            return result;
+        }
+
+        private CopyMoveResult MoveDirectory(String source, String destination, MoveOptions options)
+        {
+            CopyMoveResult result = null;
+            if (useTransaction)
+                result = Directory.MoveTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            else
+                result = Directory.Move(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            return result;
+        }
+
+        private void ListContents(String path)
         {
             DirectoryInfo dir = new DirectoryInfo(path);
             if (dir.Exists)
-                ListContents(dir, depth, indention);
+                ListContents(dir);
         }
 
-        private void ListContents(DirectoryInfo dir, int depth = 1, int indention = 2)
+        private void ListContents(DirectoryInfo dir)
         {
             if (dir != null)
             {
                 DirectoryInfo[] dirs = dir.GetDirectories();
                 foreach (DirectoryInfo d in dirs)
                 {
-                    Callback?.Invoke(CallbackLabel, Indent(depth, indention, d.FullName));
-                    ListContents(d, depth + 1, indention);
+                    ListContents(d);
                 }
 
                 FileInfo[] files = dir.GetFiles();
                 foreach (FileInfo file in files)
                 {
-                    Callback?.Invoke(CallbackLabel, Indent(depth, indention, file.FullName));
+                    Callback?.Invoke(CallbackLabel, string.Format("Will Copy File: [{0}] to [{1}]", files[0], files[1]));
                 }
             }
         }

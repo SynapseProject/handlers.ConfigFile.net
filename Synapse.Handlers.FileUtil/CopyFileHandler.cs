@@ -50,6 +50,9 @@ public class CopyFileHandler : HandlerRuntimeBase
 
             if (parameters.FileSets != null)
             {
+                if (config.UseTransaction)
+                    util.StartTransaction();
+
                 foreach (FileSet set in parameters.FileSets)
                 {
                     if (set != null && set.Sources != null && set.Destinations != null)
@@ -64,6 +67,9 @@ public class CopyFileHandler : HandlerRuntimeBase
                             }
                     }
                 }
+
+                if (config.UseTransaction)
+                    util.StopTransaction();
             }
         }
         else
