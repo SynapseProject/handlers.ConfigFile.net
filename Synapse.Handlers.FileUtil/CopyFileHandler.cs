@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
+using Alphaleonis.Win32.Filesystem;
 
 using Synapse.Handlers.FileUtil;
 
@@ -90,6 +90,22 @@ public class CopyFileHandler : HandlerRuntimeBase
         {
             foreach (FileSet set in parameters.FileSets)
             {
+                if (set.Sources != null)
+                {
+                    if (config.UseTransaction)
+                    {
+                        foreach (String source in set.Sources)
+                        {
+                            DriveInfo drive = new DriveInfo(source);
+                            if (drive.IsUnc)
+                            {
+                                OnLogMessage("Validate", "UseTransaction Not Supported On [" + drive.DriveType + "] Drives.  [" + source + "]");
+                                isValid = false;
+                            }
+                        }
+                    }
+                }
+
                 if (set.Destinations != null)
                 {
                     if (config.Action == FileAction.Move && set.Destinations.Count > 1)
@@ -97,7 +113,22 @@ public class CopyFileHandler : HandlerRuntimeBase
                         OnLogMessage("Validate", "Cannot Have Multiple Destinations On A Move Action");
                         isValid = false;
                     }
+
+                    if (config.UseTransaction)
+                    {
+                        foreach (String destination in set.Destinations)
+                        {
+                            DriveInfo drive = new DriveInfo(destination);
+                            if (drive.IsUnc)
+                            {
+                                OnLogMessage("Validate", "UseTransaction Not Supported On [" + drive.DriveType + "] Drives.  [" + destination + "]");
+                                isValid = false;
+                            }
+                        }
+                    }
                 }
+
+
             }
         }
 
