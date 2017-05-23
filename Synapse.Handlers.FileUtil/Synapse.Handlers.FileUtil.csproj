@@ -62,7 +62,9 @@
     <Compile Include="Classes\ModifyFileHandlerConfig.cs" />
     <Compile Include="Classes\CopyFileHandlerParameters.cs" />
     <Compile Include="Classes\ModifyFileHandlerParameters.cs" />
+    <Compile Include="Classes\Utils\DeleteUtil.cs" />
     <Compile Include="Classes\Utils\CopyUtil.cs" />
+    <Compile Include="Classes\Utils\FileTransaction.cs" />
     <Compile Include="Classes\Utils\HandlerUtils.cs" />
     <Compile Include="DeleteFileHandler.cs" />
     <Compile Include="CopyFileHandler.cs" />

@@ -15,7 +15,7 @@ namespace Synapse.Handlers.FileUtil
 {
     public class DeleteFileHandlerParameters
     {
-        [XmlElement]
-        public String Arguments { get; set; }
+        [XmlArrayItem("Target")]
+        public List<String> Targets { get; set; }
     }
 }

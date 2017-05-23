@@ -25,14 +25,34 @@ public class CopyFileHandler : HandlerRuntimeBase
 
     public override object GetConfigInstance()
     {
-        //TODO : Implement Me
-        throw new NotImplementedException();
+        CopyFileHandlerConfig config = new CopyFileHandlerConfig();
+
+        config.Action = FileAction.Copy;
+        config.OverwriteExisting = true;
+        config.IncludeSubdirectories = true;
+        config.PurgeDestination = false;
+        config.UseTransaction = false;
+        config.Verbose = true;
+
+        return config;
     }
 
     public override object GetParametersInstance()
     {
-        //TODO : Implement Me
-        throw new NotImplementedException();
+        CopyFileHandlerParameters parms = new CopyFileHandlerParameters();
+
+        parms.FileSets = new List<FileSet>();
+
+        FileSet fs1 = new FileSet();
+        fs1.Sources = new List<string>();
+        fs1.Destinations = new List<string>();
+        fs1.Sources.Add(@"C:\MyDir\MyFile.txt");
+        fs1.Sources.Add(@"C:\MyDir\MySubDir\");
+        fs1.Sources.Add(@"\\server\share$\Dir001");
+        fs1.Destinations.Add(@"C:\MyDest\");
+        parms.FileSets.Add(fs1);
+
+        return parms;
     }
 
     public override ExecuteResult Execute(HandlerStartInfo startInfo)
@@ -51,7 +71,7 @@ public class CopyFileHandler : HandlerRuntimeBase
             if (parameters.FileSets != null)
             {
                 if (config.UseTransaction)
-                    util.StartTransaction();
+                    util.Transaction.Start();
 
                 foreach (FileSet set in parameters.FileSets)
                 {
@@ -69,7 +89,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                 }
 
                 if (config.UseTransaction)
-                    util.StopTransaction();
+                    util.Transaction.Stop();
             }
         }
         else
@@ -78,7 +98,7 @@ public class CopyFileHandler : HandlerRuntimeBase
         return result;
     }
 
-    public void Logger(String context, String message)
+    private void Logger(String context, String message)
     {
         OnLogMessage(context, message);
     }

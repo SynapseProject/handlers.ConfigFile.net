@@ -20,9 +20,7 @@ namespace Synapse.Handlers.FileUtil
         public String CallbackLabel { get; set; }
         public Action<string, string> Callback { get; set; }
 
-        private bool useTransaction = false;
-        private TransactionScope transactionScope = null;
-        private KernelTransaction kernelTransaction = null;
+        public FileTransaction Transaction { get; set; } = new FileTransaction();
 
         public CopyUtil() { }
 
@@ -32,25 +30,6 @@ namespace Synapse.Handlers.FileUtil
             IncludeSubdirectories = config.IncludeSubdirectories;
             PurgeDestination = config.PurgeDestination;
             Verbose = config.Verbose;
-        }
-
-        public void StartTransaction()
-        {
-            useTransaction = true;
-            transactionScope = new TransactionScope(TransactionScopeOption.RequiresNew);
-            kernelTransaction = new KernelTransaction(Transaction.Current);
-        }
-
-        public void StopTransaction()
-        {
-            useTransaction = false;
-            transactionScope.Complete();
-
-            kernelTransaction.Dispose();
-            kernelTransaction = null;
-
-            transactionScope.Dispose();
-            transactionScope = null;
         }
 
         public void Copy(String source, String destination, String callbackLabel = null, Action<string, string> callback = null, bool dryRun = false)
@@ -201,10 +180,9 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        private FileType GetType(String path)
+        public static FileType GetType(String path)
         {
             FileType type = FileType.Unknown;
-
             FileInfo info = new FileInfo(path);
             if (info.Exists)
             {
@@ -215,12 +193,15 @@ namespace Synapse.Handlers.FileUtil
             }
             else
             {
-                if (path.Trim().EndsWith(@"\") || path.Trim().EndsWith(@"/"))
+                DirectoryInfo dInfo = new DirectoryInfo(path);
+                if (dInfo.Exists)
+                    type = FileType.Directory;
+                else if (path.Trim().EndsWith(@"\") || path.Trim().EndsWith(@"/"))
                     type = FileType.Directory;
             }
-
             return type;
         }
+
 
         public CopyMoveProgressResult CopyMoveProgressHandler(long totalFileSize, long totalBytesTransferred,
             long streamSize, long streamBytesTransferred, int streamNumber,
@@ -237,8 +218,8 @@ namespace Synapse.Handlers.FileUtil
 
         private void CreateDirectory(String dirPath)
         {
-            if (useTransaction)
-                Directory.CreateDirectoryTransacted(kernelTransaction, dirPath);
+            if (Transaction.IsStarted)
+                Directory.CreateDirectoryTransacted(Transaction.Kernal, dirPath);
             else
                 Directory.CreateDirectory(dirPath);
         }
@@ -246,8 +227,8 @@ namespace Synapse.Handlers.FileUtil
         private CopyMoveResult CopyFile(String source, String destination, CopyOptions options)
         {
             CopyMoveResult result = null;
-            if (useTransaction)
-                result = File.CopyTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            if (Transaction.IsStarted)
+                result = File.CopyTransacted(Transaction.Kernal, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             else
                 result = File.Copy(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             return result;
@@ -256,8 +237,8 @@ namespace Synapse.Handlers.FileUtil
         private CopyMoveResult MoveFile(String source, String destination, MoveOptions options)
         {
             CopyMoveResult result = null;
-            if (useTransaction)
-                result = File.MoveTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            if (Transaction.IsStarted)
+                result = File.MoveTransacted(Transaction.Kernal, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             else
                 result = File.Move(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             return result;
@@ -266,8 +247,8 @@ namespace Synapse.Handlers.FileUtil
         private CopyMoveResult CopyDirectory(String source, String destination, CopyOptions options)
         {
             CopyMoveResult result = null;
-            if (useTransaction)
-                result = Directory.CopyTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            if (Transaction.IsStarted)
+                result = Directory.CopyTransacted(Transaction.Kernal, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             else
                 result = Directory.Copy(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             return result;
@@ -276,8 +257,8 @@ namespace Synapse.Handlers.FileUtil
         private CopyMoveResult MoveDirectory(String source, String destination, MoveOptions options)
         {
             CopyMoveResult result = null;
-            if (useTransaction)
-                result = Directory.MoveTransacted(kernelTransaction, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
+            if (Transaction.IsStarted)
+                result = Directory.MoveTransacted(Transaction.Kernal, source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             else
                 result = Directory.Move(source, destination, options, CopyMoveProgressHandler, null, PathFormat.FullPath);
             return result;
