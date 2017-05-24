@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 using System.Xml;
 using System.Xml.Serialization;
@@ -24,23 +25,76 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
     public override object GetConfigInstance()
     {
-        //TODO : Implement Me
-        throw new NotImplementedException();
+        return null;
     }
 
     public override object GetParametersInstance()
     {
-        //TODO : Implement Me
-        throw new NotImplementedException();
+        ModifyFileHandlerParameters parms = new ModifyFileHandlerParameters();
+
+        parms.Files = new List<ModifyFileType>();
+
+        ModifyFileType file = new ModifyFileType();
+        file.Source = @"C:\Temp\file.config";
+        file.Destination = @"C:\Temp\file2.config";
+        file.Settings = new List<SettingsPair<string, string>>();
+
+        file.Settings.Add(new SettingsPair<string, string>("MyKey", "MyValue"));
+        file.Settings.Add(new SettingsPair<string, string>("MyKey2", "MyValue2"));
+
+        parms.Files.Add(file);
+
+        return parms;
     }
 
     public override ExecuteResult Execute(HandlerStartInfo startInfo)
     {
-        ExecuteResult result = null;
+        ExecuteResult result = new ExecuteResult();
+        result.Status = StatusType.Success;
+
         if (startInfo.Parameters != null)
             parameters = HandlerUtils.Deserialize<ModifyFileHandlerParameters>(startInfo.Parameters);
 
+        bool isValid = Validate();
+
+        if (isValid)
+        {
+            if (parameters.Files != null)
+            {
+                if (config.RunSequential || parameters.Files.Count == 1)
+                    foreach (ModifyFileType file in parameters.Files)
+                        ProcessFile(file);
+                else
+                    Parallel.ForEach(parameters.Files, file => ProcessFile(file));
+            }
+        }
+
         return result;
+    }
+
+    private void ProcessFile(ModifyFileType file)
+    {
+        bool createIfMissing = config.CreateSettingIfNotFound;
+        if (file.CreateSettingIfNotFound.HasValue)
+            createIfMissing = file.CreateSettingIfNotFound.Value;
+
+        switch (config.Type)
+        {
+            case ConfigType.KeyValue:
+                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, file.SettingsFile, file.SettingsKvp, createIfMissing);
+                break;
+            case ConfigType.INI:
+                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, file.SettingsFile, file.SettingsKvp, createIfMissing);
+                break;
+            default:
+                OnLogMessage("ProcessFile", "Unknown File Type [" + config.Type + "] Received.");
+                break;
+        }
+    }
+
+    private bool Validate()
+    {
+        return true;
     }
 }
 

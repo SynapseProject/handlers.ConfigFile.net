@@ -35,6 +35,10 @@
       <HintPath>..\packages\AlphaFS.2.1.0\lib\net452\AlphaFS.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
       <HintPath>..\packages\Synapse.Core.Signed.0.1.17135.0-beta\lib\net45\Synapse.Core.dll</HintPath>
       <Private>True</Private>
@@ -54,9 +58,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Utils\Munger.cs" />
+    <Compile Include="Classes\Utils\PropertyFile.cs" />
     <Compile Include="Classes\DeleteFileHandlerConfig.cs" />
     <Compile Include="Classes\CopyFileHandlerConfig.cs" />
     <Compile Include="Classes\DeleteFileHandlerParameters.cs" />
+    <Compile Include="Classes\Enums\ConfigType.cs" />
     <Compile Include="Classes\Enums\FileAction.cs" />
     <Compile Include="Classes\Enums\FileType.cs" />
     <Compile Include="Classes\ModifyFileHandlerConfig.cs" />

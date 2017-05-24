@@ -18,7 +18,13 @@ namespace Synapse.Handlers.FileUtil
     public class ModifyFileHandlerConfig
     {
         [XmlElement]
-        public String Arguments { get; set; }
+        public ConfigType Type { get; set; }
+        [XmlElement]
+        public bool CopySource { get; set; } = false;
+        [XmlElement]
+        public bool CreateSettingIfNotFound { get; set; } = false;
+        [XmlElement]
+        public bool RunSequential { get; set; } = false;
     }
 
 }
