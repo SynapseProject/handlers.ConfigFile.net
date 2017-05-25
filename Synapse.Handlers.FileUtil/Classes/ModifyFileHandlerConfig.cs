@@ -20,7 +20,7 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public ConfigType Type { get; set; }
         [XmlElement]
-        public bool CopySource { get; set; } = false;
+        public bool BackupSource { get; set; } = false;
         [XmlElement]
         public bool CreateSettingIfNotFound { get; set; } = false;
         [XmlElement]

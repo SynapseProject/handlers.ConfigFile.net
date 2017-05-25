@@ -78,6 +78,13 @@ public class ModifyFileHandler : HandlerRuntimeBase
         if (file.CreateSettingIfNotFound.HasValue)
             createIfMissing = file.CreateSettingIfNotFound.Value;
 
+        if (config.BackupSource)
+        {
+            String backupFile = Path.GetFileNameWithoutExtension(file.Source) + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file.Source);
+            String backupPath = Path.Combine(Path.GetDirectoryName(file.Source), backupFile);
+            File.Copy(file.Source, backupPath, true);
+        }
+
         switch (config.Type)
         {
             case ConfigType.KeyValue:
@@ -96,9 +103,13 @@ public class ModifyFileHandler : HandlerRuntimeBase
                 Munger.XPath(file.Source, file.Destination, file.SettingsFile, file.SettingsKvp);
                 break;
             default:
-                OnLogMessage("ProcessFile", "Unknown File Type [" + config.Type + "] Received.");
-                break;
+                String message = "Unknown File Type [" + config.Type + "] Received.";
+                OnLogMessage("ProcessFile", message);
+                throw new Exception(message);
         }
+
+        OnLogMessage("ModifyFileHandler", String.Format(@"{0} : Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
+
     }
 
     private bool Validate()
