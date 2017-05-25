@@ -14,6 +14,15 @@ namespace Synapse.Handlers.FileUtil
     {
         static public void XMLTransform(String sourceFile, String destinationFile, String transformFile)
         {
+            io.Stream transformStream = null;
+            if (!String.IsNullOrWhiteSpace(transformFile))
+                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+            XMLTransform(sourceFile, destinationFile, transformStream);
+        }
+
+        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformFile)
+        {
             String outFile = destinationFile;
             if (String.IsNullOrWhiteSpace(outFile))
                 outFile = sourceFile;
@@ -27,7 +36,7 @@ namespace Synapse.Handlers.FileUtil
                     doc.Load(sr);
                 }
 
-                using (XmlTransformation xt = new XmlTransformation(transformFile))
+                using (XmlTransformation xt = new XmlTransformation(transformFile, null))
                 {
                     xt.Apply(doc);
                     doc.Save(outFile);
@@ -37,54 +46,66 @@ namespace Synapse.Handlers.FileUtil
 
         static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
         {
+            io.Stream transformStream = null;
+            if (!String.IsNullOrWhiteSpace(transformFile))
+                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+            KeyValue(type, sourceFile, destinationFile, transformStream, settings, createIfNotFound);
+        }
+
+
+        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
+        {
             PropertyFile props = new PropertyFile(type, sourceFile);
 
             if (transformFile != null)
             {
-                if (!String.IsNullOrWhiteSpace(transformFile))
+                if (transformFile != null)
                 {
-                    String[] lines = File.ReadAllLines(transformFile);
-
-                    foreach (String line in lines)
+                    using (io.StreamReader reader = new io.StreamReader(transformFile))
                     {
-                        char[] delims = { ',' };
-                        String[] values = line.Split(delims);
-
-                        String section = null;
-                        String key = null;
-                        String value = null;
-
-                        if (values.Length == 2)
+                        String line; 
+                        while ((line = reader.ReadLine()) != null)
                         {
-                            key = values[0].Trim();
-                            value = values[1].Trim();
+                            char[] delims = { ',' };
+                            String[] values = line.Split(delims);
+
+                            String section = null;
+                            String key = null;
+                            String value = null;
+
+                            if (values.Length == 2)
+                            {
+                                key = values[0].Trim();
+                                value = values[1].Trim();
+                            }
+                            else if (values.Length >= 3)
+                            {
+                                section = values[0].Trim();
+                                key = values[1].Trim();
+                                value = values[2].Trim();
+                            }
+                            else
+                                continue;
+
+                            if (!String.IsNullOrWhiteSpace(section))
+                                if (section.StartsWith(@""""))
+                                    section = section.Substring(1, section.Length - 2);
+
+                            if (!String.IsNullOrWhiteSpace(key))
+                                if (key.StartsWith(@""""))
+                                    key = key.Substring(1, key.Length - 2);
+
+                            if (!String.IsNullOrWhiteSpace(value))
+                                if (value.Trim().StartsWith(@""""))
+                                    value = value.Substring(1, value.Length - 2);
+
+                            if (props.Exists(section, key))
+                                props.SetProperty(section, key, value);
+                            else if (createIfNotFound)
+                                props.AddProperty(section, key, value);
+
                         }
-                        else if (values.Length >= 3)
-                        {
-                            section = values[0].Trim();
-                            key = values[1].Trim();
-                            value = values[2].Trim();
-                        }
-                        else
-                            continue;
-
-                        if (!String.IsNullOrWhiteSpace(section))
-                            if (section.StartsWith(@""""))
-                                section = section.Substring(1, section.Length - 2);
-
-                        if (!String.IsNullOrWhiteSpace(key))
-                            if (key.StartsWith(@""""))
-                                key = key.Substring(1, key.Length - 2);
-
-                        if (!String.IsNullOrWhiteSpace(value))
-                            if (value.Trim().StartsWith(@""""))
-                                value = value.Substring(1, value.Length - 2);
-
-                        if (props.Exists(section, key))
-                            props.SetProperty(section, key, value);
-                        else if (createIfNotFound)
-                            props.AddProperty(section, key, value);
-
                     }
                 }
             }
@@ -119,44 +140,55 @@ namespace Synapse.Handlers.FileUtil
 
         static public void XPath(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
         {
+            io.Stream transformStream = null;
+            if (!String.IsNullOrWhiteSpace(transformFile))
+                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+            XPath(sourceFile, destinationFile, transformStream, settings);
+        }
+
+        static public void XPath(String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings)
+        {
             XmlDocument doc = new XmlDocument();
             doc.XmlResolver = null;
             doc.Load(sourceFile);
 
             if (transformFile != null)
             {
-                if (!String.IsNullOrWhiteSpace(transformFile))
+                if (transformFile != null)
                 {
-                    String[] lines = File.ReadAllLines(transformFile);
-
-                    foreach (String line in lines)
+                    using (io.StreamReader reader = new io.StreamReader(transformFile))
                     {
-                        char[] delims = { ',' };
-                        String[] values = line.Split(delims);
-
-                        String key = null;
-                        String value = null;
-
-                        if (values.Length >= 2)
+                        String line;
+                        while ((line = reader.ReadLine()) != null)
                         {
-                            key = values[0].Trim();
-                            value = values[1].Trim();
+                            char[] delims = { ',' };
+                            String[] values = line.Split(delims);
+
+                            String key = null;
+                            String value = null;
+
+                            if (values.Length >= 2)
+                            {
+                                key = values[0].Trim();
+                                value = values[1].Trim();
+                            }
+                            else
+                                continue;
+
+                            if (!String.IsNullOrWhiteSpace(key))
+                                if (key.StartsWith(@""""))
+                                    key = key.Substring(1, key.Length - 2);
+
+                            if (!String.IsNullOrWhiteSpace(value))
+                                if (value.Trim().StartsWith(@""""))
+                                    value = value.Substring(1, value.Length - 2);
+
+                            XmlNodeList nodes = doc.SelectNodes(key);
+                            foreach (XmlNode node in nodes)
+                                node.InnerText = value;
+
                         }
-                        else
-                            continue;
-
-                        if (!String.IsNullOrWhiteSpace(key))
-                            if (key.StartsWith(@""""))
-                                key = key.Substring(1, key.Length - 2);
-
-                        if (!String.IsNullOrWhiteSpace(value))
-                            if (value.Trim().StartsWith(@""""))
-                                value = value.Substring(1, value.Length - 2);
-
-                        XmlNodeList nodes = doc.SelectNodes(key);
-                        foreach (XmlNode node in nodes)
-                            node.InnerText = value;
-
                     }
                 }
             }
