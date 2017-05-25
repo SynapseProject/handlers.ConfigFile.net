@@ -9,7 +9,7 @@ using System.Xml;
 
 using YamlDotNet.Serialization;
 
-using Synapse.Core.Utilities;
+using Synapse.Core;
 
 namespace Synapse.Handlers.FileUtil
 {
@@ -26,7 +26,7 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public String Destination { get; set; }
         [XmlElement]
-        public String SettingsFile { get; set; }
+        public SettingsFileType SettingsFile { get; set; }
         [XmlElement]
         public bool? CreateSettingIfNotFound { get; set; } = null;
         [XmlArrayItem(ElementName = "Setting")]
@@ -61,7 +61,16 @@ namespace Synapse.Handlers.FileUtil
         {
             return new KeyValuePair<TKey, TValue>(pair.Key, pair.Value);
         }
-            
+    }
+
+    public class SettingsFileType
+    {
+        [XmlElement]
+        public String Name { get; set; }
+        [XmlElement]
+        public bool HasEncryptedValues { get; set; } = false;
+        [XmlElement]
+        public CryptoProvider Crypto { get; set; }
 
     }
 }

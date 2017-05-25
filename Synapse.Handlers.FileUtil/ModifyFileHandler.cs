@@ -57,6 +57,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
         bool isValid = Validate();
 
+        
+
         if (isValid)
         {
             if (parameters.Files != null)
@@ -88,19 +90,19 @@ public class ModifyFileHandler : HandlerRuntimeBase
         switch (config.Type)
         {
             case ConfigType.KeyValue:
-                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, file.SettingsFile, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp, createIfMissing);
                 break;
             case ConfigType.INI:
-                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, file.SettingsFile, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp, createIfMissing);
                 break;
             case ConfigType.Regex:
-                Munger.RegexMatch(file.Source, file.Destination, file.SettingsFile, file.SettingsKvp);
+                Munger.RegexMatch(file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp);
                 break;
             case ConfigType.XmlTransform:
-                Munger.XMLTransform(file.Source, file.Destination, file.SettingsFile);
+                Munger.XMLTransform(file.Source, file.Destination, file.SettingsFile.Name);
                 break;
             case ConfigType.XPath:
-                Munger.XPath(file.Source, file.Destination, file.SettingsFile, file.SettingsKvp);
+                Munger.XPath(file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp);
                 break;
             default:
                 String message = "Unknown File Type [" + config.Type + "] Received.";
