@@ -111,7 +111,10 @@ namespace Synapse.Handlers.FileUtil
                 }
             }
 
-            props.Save(destinationFile);
+            if (String.IsNullOrWhiteSpace(destinationFile))
+                props.Save(sourceFile);
+            else
+                props.Save(destinationFile);
         }
 
         static public void XPath(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
@@ -174,7 +177,10 @@ namespace Synapse.Handlers.FileUtil
                 }
             }
 
-            doc.Save(destinationFile);
+            if (String.IsNullOrWhiteSpace(destinationFile))
+                doc.Save(sourceFile);
+            else
+                doc.Save(destinationFile);
         }
 
         static public void RegexMatch(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
@@ -229,7 +235,10 @@ namespace Synapse.Handlers.FileUtil
                 }
             }
 
-            System.IO.File.WriteAllLines(destinationFile, lines);
+            if (String.IsNullOrWhiteSpace(destinationFile))
+                System.IO.File.WriteAllLines(sourceFile, lines);
+            else
+                System.IO.File.WriteAllLines(destinationFile, lines);
         }
 
         //

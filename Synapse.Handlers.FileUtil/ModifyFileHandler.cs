@@ -108,7 +108,10 @@ public class ModifyFileHandler : HandlerRuntimeBase
                 throw new Exception(message);
         }
 
-        OnLogMessage("ModifyFileHandler", String.Format(@"{0} : Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
+        if (String.IsNullOrWhiteSpace(file.Destination))
+            OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", config.Type, file.Source));
+        else
+            OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
 
     }
 
