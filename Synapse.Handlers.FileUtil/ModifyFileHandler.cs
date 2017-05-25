@@ -86,6 +86,15 @@ public class ModifyFileHandler : HandlerRuntimeBase
             case ConfigType.INI:
                 Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, file.SettingsFile, file.SettingsKvp, createIfMissing);
                 break;
+            case ConfigType.Regex:
+                Munger.RegexMatch(file.Source, file.Destination, file.SettingsFile, file.SettingsKvp);
+                break;
+            case ConfigType.XmlTransform:
+                Munger.XMLTransform(file.Source, file.Destination, file.SettingsFile);
+                break;
+            case ConfigType.XPath:
+                Munger.XPath(file.Source, file.Destination, file.SettingsFile, file.SettingsKvp);
+                break;
             default:
                 OnLogMessage("ProcessFile", "Unknown File Type [" + config.Type + "] Received.");
                 break;
