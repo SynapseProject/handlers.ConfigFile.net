@@ -37,8 +37,9 @@ namespace Synapse.Handlers.FileUtil
         private List<KeyValuePair<String, String>> GetSettingsKVP()
         {
             List<KeyValuePair<String, String>> kvp = new List<KeyValuePair<String, String>>();
-            foreach (SettingsPair<String, String> setting in this.Settings)
-                kvp.Add(setting);
+            if (this.Settings != null)
+                foreach (SettingsPair<String, String> setting in this.Settings)
+                    kvp.Add(setting);
 
             return kvp;
         }

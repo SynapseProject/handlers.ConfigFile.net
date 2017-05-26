@@ -65,16 +65,16 @@ public class ModifyFileHandler : HandlerRuntimeBase
             {
                 if (config.RunSequential || parameters.Files.Count == 1)
                     foreach (ModifyFileType file in parameters.Files)
-                        ProcessFile(file);
+                        ProcessFile(file, startInfo);
                 else
-                    Parallel.ForEach(parameters.Files, file => ProcessFile(file));
+                    Parallel.ForEach(parameters.Files, file => ProcessFile(file, startInfo));
             }
         }
 
         return result;
     }
 
-    private void ProcessFile(ModifyFileType file)
+    private void ProcessFile(ModifyFileType file, HandlerStartInfo startInfo)
     {
         bool createIfMissing = config.CreateSettingIfNotFound;
         if (file.CreateSettingIfNotFound.HasValue)
@@ -87,22 +87,24 @@ public class ModifyFileHandler : HandlerRuntimeBase
             File.Copy(file.Source, backupPath, true);
         }
 
+        Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
+
         switch (config.Type)
         {
             case ConfigType.KeyValue:
-                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing);
                 break;
             case ConfigType.INI:
-                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing);
                 break;
             case ConfigType.Regex:
-                Munger.RegexMatch(file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp);
+                Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp);
                 break;
             case ConfigType.XmlTransform:
-                Munger.XMLTransform(file.Source, file.Destination, file.SettingsFile.Name);
+                Munger.XMLTransform(file.Source, file.Destination, settingsFileStream);
                 break;
             case ConfigType.XPath:
-                Munger.XPath(file.Source, file.Destination, file.SettingsFile.Name, file.SettingsKvp);
+                Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp);
                 break;
             default:
                 String message = "Unknown File Type [" + config.Type + "] Received.";
@@ -120,6 +122,94 @@ public class ModifyFileHandler : HandlerRuntimeBase
     private bool Validate()
     {
         return true;
+    }
+
+    private Stream GetSettingsFileStream(ConfigType type, SettingsFileType settings, CryptoProvider planCrypto)
+    {
+        Stream stream = null;
+        if (String.IsNullOrWhiteSpace(settings.Name))
+            stream = null;
+        else
+        {
+            stream = new FileStream(settings.Name, FileMode.Open, FileAccess.Read);
+            if (settings.HasEncryptedValues)
+            {
+                CryptoProvider crypto = new CryptoProvider();
+                if (planCrypto != null)
+                {
+                    crypto.KeyUri = planCrypto.KeyUri;
+                    crypto.KeyContainerName = planCrypto.KeyContainerName;
+                    crypto.CspFlags = planCrypto.CspFlags;
+                }
+
+                if (!String.IsNullOrWhiteSpace(settings.Crypto?.KeyUri))
+                    crypto.KeyUri = settings.Crypto.KeyUri;
+                if (!String.IsNullOrWhiteSpace(settings.Crypto?.KeyContainerName))
+                    crypto.KeyContainerName = settings.Crypto.KeyContainerName;
+
+                if (String.IsNullOrWhiteSpace(crypto.KeyUri) || String.IsNullOrWhiteSpace(crypto.KeyContainerName))
+                    OnLogMessage("SettingsFile", "WARNING : HasEncryptedValues flag is set, but no Crypto section was found in the plan.  No decryption will occur.");
+                else
+                {
+                    crypto.LoadRsaKeys();
+                    String settingsFileContent = null;
+
+                    String eValue;
+                    crypto.TryEncryptOrValue("NewKeyValue", out eValue);
+                    Console.WriteLine(">> Value : [" + eValue + "].");
+
+                    switch (type)
+                    {
+                        case ConfigType.XmlTransform:
+                            settingsFileContent = DecryptXmlTransformFile(stream, crypto);
+                            break;
+                        default:
+                            settingsFileContent = DecryptCsvFile(stream, crypto);
+                            break;
+                    }
+                    byte[] byteArray = Encoding.UTF8.GetBytes(settingsFileContent);
+                    stream = new MemoryStream(byteArray);
+                }
+            }
+        }
+
+        return stream;
+    }
+
+    private String DecryptXmlTransformFile(Stream file, CryptoProvider crytpo)
+    {
+        // TODO : Implement Me
+        return null;
+    }
+
+    private String DecryptCsvFile(Stream file, CryptoProvider crytpo)
+    {
+        StringBuilder sb = new StringBuilder();
+        using (StreamReader reader = new StreamReader(file))
+        {
+            String line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                char[] delims = { ',' };
+                String[] values = line.Split(delims);
+                bool firstValue = true;
+                foreach (String value in values)
+                {
+                    String newValue = null;
+                    crytpo.TryDecryptOrValue(value, out newValue);
+                    if (firstValue)
+                        firstValue = false;
+                    else
+                        sb.Append(",");
+
+                    sb.Append(newValue);
+                }
+                sb.AppendLine(String.Empty);
+            }
+            reader.Close();
+        }
+
+        return sb.ToString();
     }
 }
 

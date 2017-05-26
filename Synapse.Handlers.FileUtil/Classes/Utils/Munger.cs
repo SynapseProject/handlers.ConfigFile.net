@@ -217,11 +217,27 @@ namespace Synapse.Handlers.FileUtil
 
         static public void RegexMatch(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
         {
+            io.Stream transformStream = null;
+            if (!String.IsNullOrWhiteSpace(transformFile))
+                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+            RegexMatch(sourceFile, destinationFile, transformStream, settings);
+        }
+
+        static public void RegexMatch(String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings)
+        {
             String[] lines = System.IO.File.ReadAllLines(sourceFile);
-            String[] xformLines = null;
+            List<String> xformLines = null;
 
             if (transformFile != null)
-                xformLines = System.IO.File.ReadAllLines(transformFile);
+            {
+                using (io.StreamReader reader = new io.StreamReader(transformFile))
+                {
+                    String line;
+                    while ((line = reader.ReadLine()) != null)
+                        xformLines.Add(line);
+                }
+            }
 
             for (int i = 0; i < lines.Length; i++)
             {
