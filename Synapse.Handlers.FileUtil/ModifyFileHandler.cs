@@ -154,10 +154,6 @@ public class ModifyFileHandler : HandlerRuntimeBase
                     crypto.LoadRsaKeys();
                     String settingsFileContent = null;
 
-                    String eValue;
-                    crypto.TryEncryptOrValue("NewKeyValue", out eValue);
-                    Console.WriteLine(">> Value : [" + eValue + "].");
-
                     switch (type)
                     {
                         case ConfigType.XmlTransform:
@@ -167,7 +163,9 @@ public class ModifyFileHandler : HandlerRuntimeBase
                             settingsFileContent = DecryptCsvFile(stream, crypto);
                             break;
                     }
-                    byte[] byteArray = Encoding.UTF8.GetBytes(settingsFileContent);
+                    byte[] byteArray = new byte[0];
+                    if (!String.IsNullOrWhiteSpace(settingsFileContent))
+                        byteArray = Encoding.UTF8.GetBytes(settingsFileContent);
                     stream = new MemoryStream(byteArray);
                 }
             }
@@ -176,13 +174,34 @@ public class ModifyFileHandler : HandlerRuntimeBase
         return stream;
     }
 
-    private String DecryptXmlTransformFile(Stream file, CryptoProvider crytpo)
+    private String DecryptXmlTransformFile(Stream file, CryptoProvider crypto)
     {
-        // TODO : Implement Me
-        return null;
+        XmlDocument doc = new XmlDocument();
+        doc.Load(file);
+        XmlElement root = doc.DocumentElement;
+        DecryptXmlNode(root, crypto);
+        return doc.OuterXml;
     }
 
-    private String DecryptCsvFile(Stream file, CryptoProvider crytpo)
+    private void DecryptXmlNode(XmlNode node, CryptoProvider crypto)
+    {
+        if (node.NodeType == XmlNodeType.Text || node.NodeType == XmlNodeType.Attribute)
+        {
+            String newValue = null;
+            crypto.TryDecryptOrValue(node.Value, out newValue);
+            if (node.Value != newValue)
+                node.Value = newValue;
+        }
+        else
+        {
+            foreach (XmlNode child in node.ChildNodes)
+                DecryptXmlNode(child, crypto);
+            foreach (XmlNode attribute in node.Attributes)
+                DecryptXmlNode(attribute, crypto);
+        }
+    }
+
+    private String DecryptCsvFile(Stream file, CryptoProvider crypto)
     {
         StringBuilder sb = new StringBuilder();
         using (StreamReader reader = new StreamReader(file))
@@ -196,7 +215,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
                 foreach (String value in values)
                 {
                     String newValue = null;
-                    crytpo.TryDecryptOrValue(value, out newValue);
+                    crypto.TryDecryptOrValue(value, out newValue);
                     if (firstValue)
                         firstValue = false;
                     else
