@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Utils\CryptoUtils.cs" />
     <Compile Include="Classes\Utils\Munger.cs" />
     <Compile Include="Classes\Utils\PropertyFile.cs" />
     <Compile Include="Classes\DeleteFileHandlerConfig.cs" />

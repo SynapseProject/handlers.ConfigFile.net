@@ -157,10 +157,10 @@ public class ModifyFileHandler : HandlerRuntimeBase
                     switch (type)
                     {
                         case ConfigType.XmlTransform:
-                            settingsFileContent = DecryptXmlTransformFile(stream, crypto);
+                            settingsFileContent = CryptoUtils.DecryptXmlFile(stream, crypto);
                             break;
                         default:
-                            settingsFileContent = DecryptCsvFile(stream, crypto);
+                            settingsFileContent = CryptoUtils.DecryptCsvFile(stream, crypto);
                             break;
                     }
                     byte[] byteArray = new byte[0];
@@ -172,63 +172,6 @@ public class ModifyFileHandler : HandlerRuntimeBase
         }
 
         return stream;
-    }
-
-    private String DecryptXmlTransformFile(Stream file, CryptoProvider crypto)
-    {
-        XmlDocument doc = new XmlDocument();
-        doc.Load(file);
-        XmlElement root = doc.DocumentElement;
-        DecryptXmlNode(root, crypto);
-        return doc.OuterXml;
-    }
-
-    private void DecryptXmlNode(XmlNode node, CryptoProvider crypto)
-    {
-        if (node.NodeType == XmlNodeType.Text || node.NodeType == XmlNodeType.Attribute)
-        {
-            String newValue = null;
-            crypto.TryDecryptOrValue(node.Value, out newValue);
-            if (node.Value != newValue)
-                node.Value = newValue;
-        }
-        else
-        {
-            foreach (XmlNode child in node.ChildNodes)
-                DecryptXmlNode(child, crypto);
-            foreach (XmlNode attribute in node.Attributes)
-                DecryptXmlNode(attribute, crypto);
-        }
-    }
-
-    private String DecryptCsvFile(Stream file, CryptoProvider crypto)
-    {
-        StringBuilder sb = new StringBuilder();
-        using (StreamReader reader = new StreamReader(file))
-        {
-            String line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                char[] delims = { ',' };
-                String[] values = line.Split(delims);
-                bool firstValue = true;
-                foreach (String value in values)
-                {
-                    String newValue = null;
-                    crypto.TryDecryptOrValue(value, out newValue);
-                    if (firstValue)
-                        firstValue = false;
-                    else
-                        sb.Append(",");
-
-                    sb.Append(newValue);
-                }
-                sb.AppendLine(String.Empty);
-            }
-            reader.Close();
-        }
-
-        return sb.ToString();
     }
 }
 
