@@ -137,17 +137,17 @@ public class ModifyFileHandler : HandlerRuntimeBase
                 CryptoProvider crypto = new CryptoProvider();
                 if (planCrypto != null)
                 {
-                    crypto.KeyUri = planCrypto.KeyUri;
-                    crypto.KeyContainerName = planCrypto.KeyContainerName;
-                    crypto.CspFlags = planCrypto.CspFlags;
+                    crypto.Key.Uri = planCrypto.Key.Uri;
+                    crypto.Key.ContainerName = planCrypto.Key.ContainerName;
+                    crypto.Key.CspFlags = planCrypto.Key.CspFlags;
                 }
 
-                if (!String.IsNullOrWhiteSpace(settings.Crypto?.KeyUri))
-                    crypto.KeyUri = settings.Crypto.KeyUri;
-                if (!String.IsNullOrWhiteSpace(settings.Crypto?.KeyContainerName))
-                    crypto.KeyContainerName = settings.Crypto.KeyContainerName;
+                if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.Uri))
+                    crypto.Key.Uri = settings.Crypto.Key.Uri;
+                if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.ContainerName))
+                    crypto.Key.ContainerName = settings.Crypto.Key.ContainerName;
 
-                if (String.IsNullOrWhiteSpace(crypto.KeyUri) || String.IsNullOrWhiteSpace(crypto.KeyContainerName))
+                if (String.IsNullOrWhiteSpace(crypto.Key.Uri) || String.IsNullOrWhiteSpace(crypto.Key.ContainerName))
                     OnLogMessage("SettingsFile", "WARNING : HasEncryptedValues flag is set, but no Crypto section was found in the plan.  No decryption will occur.");
                 else
                 {
