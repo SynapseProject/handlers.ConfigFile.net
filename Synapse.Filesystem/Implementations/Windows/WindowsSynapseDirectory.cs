@@ -29,7 +29,7 @@ namespace Synapse.Filesystem
             {
                 if ( !Directory.Exists( FullName ) )
                     Directory.CreateDirectory( FullName );
-                callback?.Invoke( callbackLabel, $"WindowsSynapseDirectory [{FullName}] Was Created." );
+                callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Created." );
                 return this;
             }
             else
@@ -46,12 +46,12 @@ namespace Synapse.Filesystem
             if ( dirName == null )
             {
                 Directory.Delete( FullName, true );
-                callback?.Invoke( callbackLabel, $"WindowsSynapseDirectory [{FullName}] Was Deleted." );
+                callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Deleted." );
             }
             else
             {
                 Directory.Delete( dirName, true );
-                callback?.Invoke( callbackLabel, $"WindowsSynapseDirectory [{dirName}] Was Deleted." );
+                callback?.Invoke( callbackLabel, $"Directory [{dirName}] Was Deleted." );
             }
 
             dirInfo = null;

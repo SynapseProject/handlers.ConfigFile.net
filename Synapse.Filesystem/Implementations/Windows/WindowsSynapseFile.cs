@@ -31,9 +31,10 @@ namespace Synapse.Filesystem
             {
                 fileStream = File.Open( FullName, FileMode.OpenOrCreate );
                 isStreamOpen = true;
+                callback?.Invoke( callbackLabel, $"File Stream [{FullName}] Has Been Opened." );
             }
-
-            callback?.Invoke( callbackLabel, $"Stream [{FullName}] Is Open." );
+            else
+                callback?.Invoke( callbackLabel, $"File Stream [{FullName}] Is Already Open." );
             return fileStream;
         }
 
@@ -43,8 +44,11 @@ namespace Synapse.Filesystem
             {
                 fileStream.Close();
                 isStreamOpen = false;
+                callback?.Invoke( callbackLabel, $"File Stream [{FullName}] Has Been Closed." );
             }
-            callback?.Invoke( callbackLabel, $"Stream [{FullName}] Is Closed." );
+            else
+                callback?.Invoke( callbackLabel, $"File Stream [{FullName}] Is Already Closed." );
+
         }
 
         public override SynapseFile Create(string fileName = null, String callbackLabel = null, Action<string, string> callback = null)
@@ -56,7 +60,7 @@ namespace Synapse.Filesystem
                     fileStream = File.Open( FullName, FileMode.OpenOrCreate );
                     isStreamOpen = true;
                 }
-                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{FullName}] Was Created." );
+                callback?.Invoke( callbackLabel, $"File [{FullName}] Was Created." );
                 return this;
             }
             else
@@ -72,12 +76,12 @@ namespace Synapse.Filesystem
             if ( fileName == null )
             {
                 File.Delete( FullName );
-                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{FullName}] Was Deleted." );
+                callback?.Invoke( callbackLabel, $"File [{FullName}] Was Deleted." );
             }
             else
             {
                 File.Delete( fileName );
-                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{fileName}] Was Deleted." );
+                callback?.Invoke( callbackLabel, $"File [{fileName}] Was Deleted." );
             }
         }
 
