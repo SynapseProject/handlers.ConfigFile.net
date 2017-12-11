@@ -25,23 +25,29 @@ namespace Synapse.Filesystem
         public WindowsSynapseFile() : base() { }
         public WindowsSynapseFile(string fullName) : base( fullName ) { }
 
-        public override Stream OpenStream()
+        public override Stream OpenStream(String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( !isStreamOpen )
             {
                 fileStream = File.Open( FullName, FileMode.OpenOrCreate );
                 isStreamOpen = true;
             }
+
+            callback?.Invoke( callbackLabel, $"Stream [{FullName}] Is Open." );
             return fileStream;
         }
 
-        public override void CloseStream()
+        public override void CloseStream(String callbackLabel = null, Action<string, string> callback = null)
         {
-            fileStream.Close();
-            isStreamOpen = false;
+            if ( isStreamOpen )
+            {
+                fileStream.Close();
+                isStreamOpen = false;
+            }
+            callback?.Invoke( callbackLabel, $"Stream [{FullName}] Is Closed." );
         }
 
-        public override SynapseFile Create(string fileName = null)
+        public override SynapseFile Create(string fileName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName)
             {
@@ -50,22 +56,29 @@ namespace Synapse.Filesystem
                     fileStream = File.Open( FullName, FileMode.OpenOrCreate );
                     isStreamOpen = true;
                 }
+                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{FullName}] Was Created." );
                 return this;
             }
             else
             {
                 WindowsSynapseFile synFile = new WindowsSynapseFile( fileName );
-                synFile.Create( fileName );
+                synFile.Create( fileName, callbackLabel, callback );
                 return synFile;
             }
         }
 
-        public override void Delete(string fileName = null)
+        public override void Delete(string fileName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null )
+            {
                 File.Delete( FullName );
+                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{FullName}] Was Deleted." );
+            }
             else
+            {
                 File.Delete( fileName );
+                callback?.Invoke( callbackLabel, $"WindowsSynapseFile [{fileName}] Was Deleted." );
+            }
         }
 
         public override bool Exists(string fileName = null)

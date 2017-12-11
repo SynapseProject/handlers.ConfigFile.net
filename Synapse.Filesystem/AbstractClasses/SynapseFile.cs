@@ -19,14 +19,14 @@ namespace Synapse.Filesystem
             FullName = fullName;
         }
 
-        public abstract SynapseFile Create(string fileName = null);
-        public abstract void Delete(string fileName = null);
+        public abstract SynapseFile Create(string fileName = null, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void Delete(string fileName = null, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string fileName = null);
 
-        public abstract Stream OpenStream();
-        public abstract void CloseStream();
+        public abstract Stream OpenStream(String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void CloseStream(String callbackLabel = null, Action<string, string> callback = null);
 
-        public void CopyTo(SynapseFile file, bool overwrite = true)
+        public void CopyTo(SynapseFile file, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             Stream source = this.OpenStream();
             Stream target = file.OpenStream();
@@ -36,14 +36,14 @@ namespace Synapse.Filesystem
             this.CloseStream();
             file.CloseStream();
 
-            Console.WriteLine( $"Copied File [{this.FullName}] to [{file.FullName}]." );
+            callback?.Invoke( callbackLabel, $"Copied File [{this.FullName}] to [{file.FullName}]." );
         }
 
-        public void MoveTo(SynapseFile file, bool overwrite = true)
+        public void MoveTo(SynapseFile file, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             CopyTo( file );
             this.Delete();
-            Console.WriteLine( $"Moved File [{this.FullName}] to [{file.FullName}]." );
+            callback?.Invoke( callbackLabel, $"Moved File [{this.FullName}] to [{file.FullName}]." );
 
         }
     }

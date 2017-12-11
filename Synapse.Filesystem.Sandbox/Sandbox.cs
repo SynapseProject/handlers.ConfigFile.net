@@ -32,15 +32,22 @@ namespace Synapse.Filesystem
 
             WindowsSynapseDirectory synSourceDir = new WindowsSynapseDirectory( sourceDir );
             WindowsSynapseDirectory synTargetDir = new WindowsSynapseDirectory( targetDir );
-            synSourceDir.CopyTo( synTargetDir );
-            synTargetDir.Clear();
-            synSourceDir.MoveTo( synTargetDir);
+            synSourceDir.CopyTo( synTargetDir, true, true, "Sandbox", ConsoleWriter );
+            Console.WriteLine( "================================" );
+            synTargetDir.Clear( null, "Sandbox", ConsoleWriter );
+            Console.WriteLine( "================================" );
+            synSourceDir.MoveTo( synTargetDir, true, true, "Sandbox", ConsoleWriter );
 
 
 
 
             Console.WriteLine( "Press <ENTER> To Continue..." );
             Console.ReadLine();
+        }
+
+        private static void ConsoleWriter(string label, string message)
+        {
+            Console.WriteLine( $"{label} - {message}" );
         }
     }
 }
