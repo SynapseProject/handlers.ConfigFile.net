@@ -23,13 +23,13 @@ namespace Synapse.Filesystem
         public abstract void Delete(string fileName = null, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string fileName = null);
 
-        public abstract Stream OpenStream(String callbackLabel = null, Action<string, string> callback = null);
+        public abstract Stream OpenStream(AccessType access, String callbackLabel = null, Action<string, string> callback = null);
         public abstract void CloseStream(String callbackLabel = null, Action<string, string> callback = null);
 
         public void CopyTo(SynapseFile file, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            Stream source = this.OpenStream();
-            Stream target = file.OpenStream();
+            Stream source = this.OpenStream(AccessType.Read);
+            Stream target = file.OpenStream( AccessType.Write);
 
             source.CopyTo( target );
 

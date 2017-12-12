@@ -33,6 +33,12 @@
     <Reference Include="AlphaFS, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4d31a58f7d7ad5c9, processorArchitecture=MSIL">
       <HintPath>..\packages\AlphaFS.2.1.3\lib\net452\AlphaFS.dll</HintPath>
     </Reference>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.3.21.1\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.S3.3.3.16\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
@@ -49,13 +55,20 @@
   <ItemGroup>
     <Compile Include="AbstractClasses\SynapseDirectory.cs" />
     <Compile Include="AbstractClasses\SynapseFile.cs" />
+    <Compile Include="Classes\Enums.cs" />
     <Compile Include="CopyUtils.cs" />
+    <Compile Include="Implementations\Amazon\AwsClient.cs" />
+    <Compile Include="Implementations\Amazon\AwsS3SynapseDirectory.cs" />
+    <Compile Include="Implementations\Amazon\AwsS3SynapseFile.cs" />
     <Compile Include="Implementations\Windows\WindowsSynapseDirectory.cs" />
     <Compile Include="Implementations\Windows\WindowsSynapseFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.16\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -27,17 +27,21 @@ namespace Synapse.Filesystem
         {
             foreach ( SynapseDirectory childDir in GetDirectories() )
             {
-                SynapseDirectory targetChild = target.Create( childDir.Name );
-                if ( recurse )
-                    childDir.CopyTo( targetChild, recurse, overwrite, callbackLabel, callback );
+                if ( !String.IsNullOrWhiteSpace( childDir.Name ) )
+                {
+                    String targetDirName = target.PathCombine( target.FullName, $"{childDir.Name}/" );
+                    SynapseDirectory targetChild = target.Create( targetDirName );
+                    if ( recurse )
+                        childDir.CopyTo( targetChild, recurse, overwrite, callbackLabel, callback );
+                }
             }
 
-            foreach ( SynapseFile file in GetFiles())
-            {
-                String targetFileName = target.PathCombine( target.FullName, file.Name );
-                SynapseFile targetFile = file.Create( targetFileName );
-                file.CopyTo( targetFile, overwrite, callbackLabel, callback );
-            }
+            //foreach ( SynapseFile file in GetFiles() )
+            //{
+            //    String targetFileName = target.PathCombine( target.FullName, file.Name );
+            //    SynapseFile targetFile = file.Create( targetFileName );
+            //    file.CopyTo( targetFile, overwrite, callbackLabel, callback );
+            //}
 
             callback?.Invoke(callbackLabel,  $"Copied Directory [{this.FullName}] to [{target.FullName}]." );
 
