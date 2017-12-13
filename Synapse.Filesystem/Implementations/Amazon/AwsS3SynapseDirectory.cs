@@ -150,7 +150,7 @@ namespace Synapse.Filesystem
                 {
                     String fileName = obj.Key.Replace( ObjectKey, "" );
                     // Exclude Sub-Directories
-                    if ( fileName.Split( new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries ).Length == 1 )
+                    if ( fileName.Split( new char[] { '/' } ).Length == 1 )
                         files.Add( new AwsS3SynapseFile( $"s3://{obj.BucketName}/{obj.Key}" ) );
                 }
 
