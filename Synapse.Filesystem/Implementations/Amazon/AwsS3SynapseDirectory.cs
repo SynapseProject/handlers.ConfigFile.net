@@ -103,7 +103,10 @@ namespace Synapse.Filesystem
         {
             if (dirName == null || dirName == FullName)
             {
-                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, ObjectKey );
+                String key = ObjectKey;
+                if (key.EndsWith("/"))
+                    key = key.Substring(0, key.Length - 1);
+                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, key );
                 dirInfo.Delete( true );
                 callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Deleted." );
             }

@@ -29,7 +29,6 @@ public class CopyFileHandler : HandlerRuntimeBase
             OnLogMessage("Initialize", "Aws Client Initialized.");
         }
 
-
         return base.Initialize(configStr);
     }
 
@@ -58,7 +57,10 @@ public class CopyFileHandler : HandlerRuntimeBase
         fs1.Sources.Add(@"C:\MyDir\MyFile.txt");
         fs1.Sources.Add(@"C:\MyDir\MySubDir\");
         fs1.Sources.Add(@"\\server\share$\Dir001");
+        fs1.Sources.Add(@"s3://mybucket/dir001/");
+        fs1.Sources.Add(@"s3://mybucket/dir002/MyFile.txt");
         fs1.Destinations.Add(@"C:\MyDest\");
+        fs1.Destinations.Add(@"s3://mybucket/destdir/");
         parms.FileSets.Add(fs1);
 
         return parms;
