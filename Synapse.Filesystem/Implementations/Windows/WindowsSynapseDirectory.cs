@@ -41,6 +41,11 @@ namespace Synapse.Filesystem
             }
         }
 
+        public override SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            return new WindowsSynapseFile(fullName);
+        }
+
         public override void Delete(string dirName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( dirName == null )

@@ -94,6 +94,11 @@ namespace Synapse.Filesystem
             }
         }
 
+        public override SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            return new AwsS3SynapseFile(fullName);
+        }
+
         public override void Delete(string dirName = null, string callbackLabel = null, Action<string, string> callback = null)
         {
             if (dirName == null || dirName == FullName)

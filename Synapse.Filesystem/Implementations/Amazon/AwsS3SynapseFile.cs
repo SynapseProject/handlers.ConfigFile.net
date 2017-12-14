@@ -91,6 +91,11 @@ namespace Synapse.Filesystem
             }
         }
 
+        public override SynapseDirectory CreateDirectory(string dirName, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            return new AwsS3SynapseDirectory(dirName);
+        }
+
         public override void Delete(string fileName = null, string callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )

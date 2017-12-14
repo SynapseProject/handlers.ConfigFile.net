@@ -19,6 +19,8 @@ namespace Synapse.Filesystem
         public abstract void Delete(string dirName = null, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string dirName = null);
 
+        public abstract SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null);
+
         public abstract IEnumerable<SynapseDirectory> GetDirectories();
         public abstract IEnumerable<SynapseFile> GetFiles();
         public abstract String PathCombine(params string[] paths);
@@ -36,7 +38,7 @@ namespace Synapse.Filesystem
             foreach (SynapseFile file in GetFiles())
             {
                 String targetFileName = target.PathCombine(target.FullName, file.Name);
-                SynapseFile targetFile = file.Create(targetFileName);
+                SynapseFile targetFile = target.CreateFile(targetFileName, callbackLabel, callback);
                 file.CopyTo(targetFile, overwrite, callbackLabel, callback);
             }
 

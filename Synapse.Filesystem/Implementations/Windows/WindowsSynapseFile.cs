@@ -69,6 +69,11 @@ namespace Synapse.Filesystem
             }
         }
 
+        public override SynapseDirectory CreateDirectory(string dirName, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            return new WindowsSynapseDirectory(dirName);
+        }
+
         public override void Delete(string fileName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )

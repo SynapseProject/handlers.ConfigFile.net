@@ -34,6 +34,9 @@
     <Reference Include="AlphaFS, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4d31a58f7d7ad5c9, processorArchitecture=MSIL">
       <HintPath>..\packages\AlphaFS.2.1.3\lib\net452\AlphaFS.dll</HintPath>
     </Reference>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.3.21.1\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
       <Private>True</Private>
@@ -56,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\AwsConfig.cs" />
     <Compile Include="Classes\Utils\CryptoUtils.cs" />
     <Compile Include="Classes\Utils\Munger.cs" />
     <Compile Include="Classes\Utils\PropertyFile.cs" />
@@ -69,7 +73,6 @@
     <Compile Include="Classes\CopyFileHandlerParameters.cs" />
     <Compile Include="Classes\ModifyFileHandlerParameters.cs" />
     <Compile Include="Classes\Utils\DeleteUtil.cs" />
-    <Compile Include="Classes\Utils\CopyUtil.cs" />
     <Compile Include="Classes\Utils\FileTransaction.cs" />
     <Compile Include="Classes\Utils\HandlerUtils.cs" />
     <Compile Include="DeleteFileHandler.cs" />
@@ -79,6 +82,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Synapse.Filesystem\Synapse.Filesystem.csproj">
+      <Project>{821fde49-adcf-4ce8-816c-3e116c8f593d}</Project>
+      <Name>Synapse.Filesystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -11,4 +11,15 @@ namespace Synapse.Filesystem
         Read,
         Write
     }
+
+    public enum UrlType
+    {
+        Unknown,
+        LocalFile,
+        LocalDirectory,
+        NetworkFile,
+        NetworkDirectory,
+        AwsS3File,
+        AwsS3Directory
+    }
 }
