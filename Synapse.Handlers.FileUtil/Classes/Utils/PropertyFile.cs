@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Alphaleonis.Win32.Filesystem;
 using System.Text.RegularExpressions;
+using io = System.IO;
 
 namespace Synapse.Handlers.FileUtil
 {
@@ -67,6 +68,14 @@ namespace Synapse.Handlers.FileUtil
             for (int i=0; i<_lines.Count; i++)
                 outLines[i] = _lines[i].RawLine;
             File.WriteAllLines(file, outLines);
+        }
+
+        public void Save(io.Stream stream)
+        {
+            io.StreamWriter writer = new io.StreamWriter(stream);
+            foreach (PropertyFileLine line in _lines)
+                writer.WriteLine(line.RawLine);
+            stream.Close();
         }
 
         public void SetProperty(String key, String value)

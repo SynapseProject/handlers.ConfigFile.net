@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.IO;
 
 using Synapse.Core;
+using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 public class ModifyFileHandler : HandlerRuntimeBase
@@ -20,6 +21,13 @@ public class ModifyFileHandler : HandlerRuntimeBase
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<ModifyFileHandlerConfig>(configStr);
+
+        if (config.Aws != null)
+        {
+            AwsClient.Initialize(config.Aws.AwsRegion);
+            OnLogMessage("Initialize", "Aws Client Initialized.");
+        }
+
         return base.Initialize(configStr);
     }
 
@@ -131,7 +139,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
             stream = null;
         else
         {
-            stream = new FileStream(settings.Name, FileMode.Open, FileAccess.Read);
+            SynapseFile settingsFile = Utilities.GetSynapseFile(settings.Name);
+            stream = settingsFile.OpenStream(AccessType.Read);
             if (settings.HasEncryptedValues)
             {
                 CryptoProvider crypto = new CryptoProvider();

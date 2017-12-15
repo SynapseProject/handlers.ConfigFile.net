@@ -8,38 +8,55 @@ using io = System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
 
+using Synapse.Filesystem;
+
 namespace Synapse.Handlers.FileUtil
 {
     class Munger
     {
         static public void XMLTransform(String sourceFile, String destinationFile, String transformFile)
         {
-            io.Stream transformStream = null;
-            if (!String.IsNullOrWhiteSpace(transformFile))
-                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
-            XMLTransform(sourceFile, destinationFile, transformStream);
+            io.Stream sourceStream = source.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination.OpenStream(AccessType.Write);
+            io.Stream transformStream = transform.OpenStream(AccessType.Read);
+
+            XMLTransform(sourceStream, destinationStream, transformStream);
         }
 
-        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformFile)
+        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformStream)
         {
-            String outFile = destinationFile;
-            if (String.IsNullOrWhiteSpace(outFile))
-                outFile = sourceFile;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            io.Stream sourceStream = source.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination.OpenStream(AccessType.Write);
+
+            XMLTransform(sourceStream, destinationStream, transformStream);
+        }
+
+        static public void XMLTransform(io.Stream sourceStream, io.Stream destinationStream, io.Stream transformStream)
+        {
+            io.Stream outStream = destinationStream;
+            if (outStream == null)
+                outStream = sourceStream;
 
             using (XmlTransformableDocument doc = new XmlTransformableDocument())
             {
                 doc.PreserveWhitespace = true;
 
-                using (io.StreamReader sr = new io.StreamReader(sourceFile))
+                using (io.StreamReader sr = new io.StreamReader(sourceStream))
                 {
                     doc.Load(sr);
                 }
 
-                using (XmlTransformation xt = new XmlTransformation(transformFile, null))
+                using (XmlTransformation xt = new XmlTransformation(transformStream, null))
                 {
                     xt.Apply(doc);
-                    doc.Save(outFile);
+                    doc.Save(outStream);
                 }
             }
         }
