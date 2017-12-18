@@ -101,10 +101,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
         if (config.BackupSource)
         {
             SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
-
-            String backupFile = Path.GetFileNameWithoutExtension(file.Source) + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file.Source);
-            String backupPath = Path.Combine(Path.GetDirectoryName(file.Source), backupFile);
-            File.Copy(file.Source, backupPath, true);
+            SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}");
+            sourceFile.CopyTo(backupFile);
         }
 
         Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
