@@ -14,26 +14,29 @@ namespace Synapse.Filesystem
         {
             UrlType type = UrlType.Unknown;
 
-            if (url.StartsWith("s3://", StringComparison.OrdinalIgnoreCase))
+            if (url != null)
             {
-                if (IsDirectory(url))
-                    type = UrlType.AwsS3Directory;
+                if (url.StartsWith("s3://", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (IsDirectory(url))
+                        type = UrlType.AwsS3Directory;
+                    else
+                        type = UrlType.AwsS3File;
+                }
+                else if (url.StartsWith("\\"))
+                {
+                    if (IsDirectory(url))
+                        type = UrlType.NetworkDirectory;
+                    else
+                        type = UrlType.NetworkFile;
+                }
                 else
-                    type = UrlType.AwsS3File;
-            }
-            else if (url.StartsWith("\\"))
-            {
-                if (IsDirectory(url))
-                    type = UrlType.NetworkDirectory;
-                else
-                    type = UrlType.NetworkFile;
-            }
-            else
-            {
-                if (IsDirectory(url))
-                    type = UrlType.LocalDirectory;
-                else
-                    type = UrlType.LocalFile;
+                {
+                    if (IsDirectory(url))
+                        type = UrlType.LocalDirectory;
+                    else
+                        type = UrlType.LocalFile;
+                }
             }
 
             return type;
@@ -41,7 +44,10 @@ namespace Synapse.Filesystem
 
         public static bool IsDirectory(string url)
         {
-            return (url.EndsWith("/") || url.EndsWith(@"\"));
+            bool rc = false;
+            if (url != null)
+                rc = (url.EndsWith("/") || url.EndsWith(@"\"));
+            return rc;
         }
 
         public static bool IsFile(string url)
@@ -64,8 +70,6 @@ namespace Synapse.Filesystem
                 case UrlType.AwsS3File:
                     file = new AwsS3SynapseFile(url);
                     break;
-                default:
-                    throw new Exception($"Url [{url}] Is Not A Known File Type.");
             }
 
             return file;

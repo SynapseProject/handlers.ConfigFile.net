@@ -4,6 +4,8 @@ using Alphaleonis.Win32.Filesystem;
 using System.Text.RegularExpressions;
 using io = System.IO;
 
+using Synapse.Filesystem;
+
 namespace Synapse.Handlers.FileUtil
 {
     public class PropertyFile
@@ -32,13 +34,27 @@ namespace Synapse.Handlers.FileUtil
         {
             this.FileType = fileType;
             Load(file);
-
         }
 
-        public void Load(String file)
+        public PropertyFile(Type fileType, io.Stream stream)
         {
-            String[] lines = File.ReadAllLines(file);
-            foreach (String line in lines)
+            this.FileType = fileType;
+            Load(stream);
+        }
+
+        public void Load(String filename)
+        { 
+            SynapseFile file = Utilities.GetSynapseFile(filename);
+            io.Stream stream = file.OpenStream(AccessType.Read);
+            Load(stream);
+        }
+
+        public void Load( io.Stream stream)
+        {
+            io.StreamReader reader = new io.StreamReader(stream);
+            //            foreach (String line in lines)
+            String line = null;
+            while ((line = reader.ReadLine()) != null)
             {
                 PropertyFileLine pfLine = null;
                 if (this.FileType == Type.Java)
@@ -62,12 +78,11 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        public void Save(String file)
+        public void Save(String filename)
         {
-            String[] outLines = new String[_lines.Count];
-            for (int i=0; i<_lines.Count; i++)
-                outLines[i] = _lines[i].RawLine;
-            File.WriteAllLines(file, outLines);
+            SynapseFile file = Utilities.GetSynapseFile(filename);
+            io.Stream stream = file.OpenStream(AccessType.Write);
+            Save(stream);
         }
 
         public void Save(io.Stream stream)
@@ -75,6 +90,7 @@ namespace Synapse.Handlers.FileUtil
             io.StreamWriter writer = new io.StreamWriter(stream);
             foreach (PropertyFileLine line in _lines)
                 writer.WriteLine(line.RawLine);
+            writer.Flush();
             stream.Close();
         }
 

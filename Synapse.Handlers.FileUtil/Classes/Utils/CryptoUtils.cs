@@ -33,8 +33,9 @@ namespace Synapse.Handlers.FileUtil
                     bool firstValue = true;
                     foreach (String value in values)
                     {
+                        String rawValue = value.Trim('"', ' ');
                         String newValue = null;
-                        crypto.TryDecryptOrValue(value, out newValue);
+                        crypto.TryDecryptOrValue(rawValue, out newValue);
                         if (firstValue)
                             firstValue = false;
                         else
