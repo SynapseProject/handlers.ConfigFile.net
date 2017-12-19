@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.IO;
 
 using Synapse.Core;
+using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 public class ModifyFileHandler : HandlerRuntimeBase
@@ -20,6 +21,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<ModifyFileHandlerConfig>(configStr);
+        HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 
@@ -51,26 +53,35 @@ public class ModifyFileHandler : HandlerRuntimeBase
     {
         ExecuteResult result = new ExecuteResult();
         result.Status = StatusType.Success;
+        int cheapSequence = 0;
 
-        if (startInfo.Parameters != null)
-            parameters = HandlerUtils.Deserialize<ModifyFileHandlerParameters>(startInfo.Parameters);
-
-        bool isValid = Validate();
-
-        
-
-        if (isValid)
+        try
         {
-            if (parameters.Files != null)
+            OnProgress("ModifyFileHandler", "Handler Execution Begins.", StatusType.Running, 0, cheapSequence++);
+            if (startInfo.Parameters != null)
+                parameters = HandlerUtils.Deserialize<ModifyFileHandlerParameters>(startInfo.Parameters);
+
+            bool isValid = Validate();
+
+            if (isValid)
             {
-                if (config.RunSequential || parameters.Files.Count == 1)
-                    foreach (ModifyFileType file in parameters.Files)
-                        ProcessFile(file, startInfo);
-                else
-                    Parallel.ForEach(parameters.Files, file => ProcessFile(file, startInfo));
+                if (parameters.Files != null)
+                {
+                    if (config.RunSequential || parameters.Files.Count == 1)
+                        foreach (ModifyFileType file in parameters.Files)
+                            ProcessFile(file, startInfo);
+                    else
+                        Parallel.ForEach(parameters.Files, file => ProcessFile(file, startInfo));
+                }
             }
         }
+        catch (Exception e)
+        {
+            OnProgress("ModifyFileHandler", "Handler Execution Failed.", StatusType.Failed, 0, cheapSequence++, false, e);
+            throw e;
+        }
 
+        OnProgress("ModifyFileHandler", "Handler Execution Ends.", StatusType.Running, 0, cheapSequence++);
         return result;
     }
 
@@ -82,9 +93,9 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
         if (config.BackupSource)
         {
-            String backupFile = Path.GetFileNameWithoutExtension(file.Source) + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file.Source);
-            String backupPath = Path.Combine(Path.GetDirectoryName(file.Source), backupFile);
-            File.Copy(file.Source, backupPath, true);
+            SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
+            SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}");
+            sourceFile.CopyTo(backupFile);
         }
 
         Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
@@ -121,7 +132,33 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
     private bool Validate()
     {
-        return true;
+        bool isValid = true;
+        if (parameters.Files != null)
+        {
+            foreach (ModifyFileType file in parameters.Files)
+            {
+                if (config.Aws == null && Utilities.GetUrlType(file.Source) == UrlType.AwsS3File)
+                {
+                    OnLogMessage("Validate", $"File [{file.Source}] Is In An S3 Bucket, But No Aws Section Is Specified In The Config Section.");
+                    isValid = false;
+                }
+
+                if (config.Aws == null && Utilities.GetUrlType(file.Destination) == UrlType.AwsS3File)
+                {
+                    OnLogMessage("Validate", $"File [{file.Destination}] Is In An S3 Bucket, But No Aws Section Is Specified In The Config Section.");
+                    isValid = false;
+                }
+
+                if (config.Aws == null && Utilities.GetUrlType(file.SettingsFile.Name) == UrlType.AwsS3File)
+                {
+                    OnLogMessage("Validate", $"File [{file.SettingsFile.Name}] Is In An S3 Bucket, But No Aws Section Is Specified In The Config Section.");
+                    isValid = false;
+                }
+
+            }
+        }
+
+        return isValid;
     }
 
     private Stream GetSettingsFileStream(ConfigType type, SettingsFileType settings, CryptoProvider planCrypto)
@@ -131,10 +168,12 @@ public class ModifyFileHandler : HandlerRuntimeBase
             stream = null;
         else
         {
-            stream = new FileStream(settings.Name, FileMode.Open, FileAccess.Read);
+            SynapseFile settingsFile = Utilities.GetSynapseFile(settings.Name);
+            stream = settingsFile.OpenStream(AccessType.Read);
             if (settings.HasEncryptedValues)
             {
                 CryptoProvider crypto = new CryptoProvider();
+                crypto.Key = new CryptoKeyInfo();
                 if (planCrypto != null)
                 {
                     crypto.Key.Uri = planCrypto.Key.Uri;

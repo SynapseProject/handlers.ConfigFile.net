@@ -8,104 +8,212 @@ using io = System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
 
+using Synapse.Filesystem;
+
 namespace Synapse.Handlers.FileUtil
 {
     class Munger
     {
         static public void XMLTransform(String sourceFile, String destinationFile, String transformFile)
         {
-            io.Stream transformStream = null;
-            if (!String.IsNullOrWhiteSpace(transformFile))
-                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
-            XMLTransform(sourceFile, destinationFile, transformStream);
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            XMLTransform(sourceStream, destinationStream, transformStream);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
         }
 
-        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformFile)
+        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformStream)
         {
-            String outFile = destinationFile;
-            if (String.IsNullOrWhiteSpace(outFile))
-                outFile = sourceFile;
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
 
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            XMLTransform(sourceStream, destinationStream, transformStream);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
+        }
+
+        static public void XMLTransform(io.Stream sourceStream, io.Stream destinationStream, io.Stream transformStream)
+        {
             using (XmlTransformableDocument doc = new XmlTransformableDocument())
             {
                 doc.PreserveWhitespace = true;
 
-                using (io.StreamReader sr = new io.StreamReader(sourceFile))
+                using (io.StreamReader sr = new io.StreamReader(sourceStream))
                 {
                     doc.Load(sr);
                 }
 
-                using (XmlTransformation xt = new XmlTransformation(transformFile, null))
+                using (XmlTransformation xt = new XmlTransformation(transformStream, null))
                 {
                     xt.Apply(doc);
-                    doc.Save(outFile);
+                    doc.Save(destinationStream);
                 }
             }
         }
 
         static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
         {
-            io.Stream transformStream = null;
-            if (!String.IsNullOrWhiteSpace(transformFile))
-                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
-            KeyValue(type, sourceFile, destinationFile, transformStream, settings, createIfNotFound);
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            KeyValue(type, sourceStream, destinationStream, transformStream, settings, createIfNotFound);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
         }
 
-
-        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
+        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
         {
-            PropertyFile props = new PropertyFile(type, sourceFile);
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
 
-            if (transformFile != null)
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+
+            if (destinationStream == null)
             {
-                if (transformFile != null)
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            KeyValue(type, sourceStream, destinationStream, transformStream, settings, createIfNotFound);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
+        }
+
+        static public void KeyValue(PropertyFile.Type type, io.Stream sourceStream, io.Stream destinationStream, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false)
+        {
+            PropertyFile props = new PropertyFile(type, sourceStream);
+
+            if (transformStream != null)
+            {
+                using (io.StreamReader reader = new io.StreamReader(transformStream))
                 {
-                    using (io.StreamReader reader = new io.StreamReader(transformFile))
+                    String line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        String line; 
-                        while ((line = reader.ReadLine()) != null)
+                        char[] delims = { ',' };
+                        String[] values = line.Split(delims);
+
+                        String section = null;
+                        String key = null;
+                        String value = null;
+
+                        if (values.Length == 2)
                         {
-                            char[] delims = { ',' };
-                            String[] values = line.Split(delims);
-
-                            String section = null;
-                            String key = null;
-                            String value = null;
-
-                            if (values.Length == 2)
-                            {
-                                key = values[0].Trim();
-                                value = values[1].Trim();
-                            }
-                            else if (values.Length >= 3)
-                            {
-                                section = values[0].Trim();
-                                key = values[1].Trim();
-                                value = values[2].Trim();
-                            }
-                            else
-                                continue;
-
-                            if (!String.IsNullOrWhiteSpace(section))
-                                if (section.StartsWith(@""""))
-                                    section = section.Substring(1, section.Length - 2);
-
-                            if (!String.IsNullOrWhiteSpace(key))
-                                if (key.StartsWith(@""""))
-                                    key = key.Substring(1, key.Length - 2);
-
-                            if (!String.IsNullOrWhiteSpace(value))
-                                if (value.Trim().StartsWith(@""""))
-                                    value = value.Substring(1, value.Length - 2);
-
-                            if (props.Exists(section, key))
-                                props.SetProperty(section, key, value);
-                            else if (createIfNotFound)
-                                props.AddProperty(section, key, value);
-
+                            key = values[0].Trim();
+                            value = values[1].Trim();
                         }
+                        else if (values.Length >= 3)
+                        {
+                            section = values[0].Trim();
+                            key = values[1].Trim();
+                            value = values[2].Trim();
+                        }
+                        else
+                            continue;
+
+                        if (!String.IsNullOrWhiteSpace(section))
+                            if (section.StartsWith(@""""))
+                                section = section.Substring(1, section.Length - 2);
+
+                        if (!String.IsNullOrWhiteSpace(key))
+                            if (key.StartsWith(@""""))
+                                key = key.Substring(1, key.Length - 2);
+
+                        if (!String.IsNullOrWhiteSpace(value))
+                            if (value.Trim().StartsWith(@""""))
+                                value = value.Substring(1, value.Length - 2);
+
+                        if (props.Exists(section, key))
+                            props.SetProperty(section, key, value);
+                        else if (createIfNotFound)
+                            props.AddProperty(section, key, value);
+
                     }
                 }
             }
@@ -132,32 +240,89 @@ namespace Synapse.Handlers.FileUtil
                 }
             }
 
-            if (String.IsNullOrWhiteSpace(destinationFile))
-                props.Save(sourceFile);
+            if (destinationStream == null)
+                props.Save(sourceStream);
             else
-                props.Save(destinationFile);
+                props.Save(destinationStream);
         }
 
         static public void XPath(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
         {
-            io.Stream transformStream = null;
-            if (!String.IsNullOrWhiteSpace(transformFile))
-                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
-            XPath(sourceFile, destinationFile, transformStream, settings);
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            XPath(sourceStream, destinationStream, transformStream, settings);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
         }
 
-        static public void XPath(String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings)
+        static public void XPath(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings)
+        {
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            XPath(sourceStream, destinationStream, transformStream, settings);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
+        }
+
+        static public void XPath(io.Stream sourceStream, io.Stream destinationStream, io.Stream transformStream, List<KeyValuePair<String, String>> settings)
         {
             XmlDocument doc = new XmlDocument();
             doc.XmlResolver = null;
-            doc.Load(sourceFile);
+            doc.Load(sourceStream);
 
-            if (transformFile != null)
+            if (transformStream != null)
             {
-                if (transformFile != null)
+                if (transformStream != null)
                 {
-                    using (io.StreamReader reader = new io.StreamReader(transformFile))
+                    using (io.StreamReader reader = new io.StreamReader(transformStream))
                     {
                         String line;
                         while ((line = reader.ReadLine()) != null)
@@ -187,7 +352,6 @@ namespace Synapse.Handlers.FileUtil
                             XmlNodeList nodes = doc.SelectNodes(key);
                             foreach (XmlNode node in nodes)
                                 node.InnerText = value;
-
                         }
                     }
                 }
@@ -209,37 +373,102 @@ namespace Synapse.Handlers.FileUtil
                 }
             }
 
-            if (String.IsNullOrWhiteSpace(destinationFile))
-                doc.Save(sourceFile);
+            if (destinationStream == null)
+                doc.Save(sourceStream);
             else
-                doc.Save(destinationFile);
+                doc.Save(destinationStream);
         }
 
         static public void RegexMatch(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings)
         {
-            io.Stream transformStream = null;
-            if (!String.IsNullOrWhiteSpace(transformFile))
-                transformStream = new io.FileStream(transformFile, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
-            RegexMatch(sourceFile, destinationFile, transformStream, settings);
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+
+            if (destinationStream == null)
+            {
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            RegexMatch(sourceStream, destinationStream, transformStream, settings);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
         }
 
-        static public void RegexMatch(String sourceFile, String destinationFile, io.Stream transformFile, List<KeyValuePair<String, String>> settings)
+        static public void RegexMatch(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings)
         {
-            String[] lines = System.IO.File.ReadAllLines(sourceFile);
-            List<String> xformLines = null;
+            bool tempFileUsed = false;
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
 
-            if (transformFile != null)
+            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
+            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+
+            if (destinationStream == null)
             {
-                using (io.StreamReader reader = new io.StreamReader(transformFile))
+                String tempFileName = $"{source.FullName}_tmpout";
+                destination = Utilities.GetSynapseFile(tempFileName);
+                destination.Create();
+                destinationStream = destination?.OpenStream(AccessType.Write);
+                tempFileUsed = true;
+            }
+
+            RegexMatch(sourceStream, destinationStream, transformStream, settings);
+
+            if (tempFileUsed)
+            {
+                sourceStream.Close();
+                destinationStream.Close();
+                source.CloseStream();
+                destination.CloseStream();
+
+                source.Delete();
+                destination.MoveTo(source);
+            }
+        }
+
+        static public void RegexMatch(io.Stream sourceStream, io.Stream destinationStream, io.Stream transformStream, List<KeyValuePair<String, String>> settings)
+        {
+            List<String> xformLines = new List<string>();
+
+            if (transformStream != null)
+            {
+                using (io.StreamReader xformReader = new io.StreamReader(transformStream))
                 {
-                    String line;
-                    while ((line = reader.ReadLine()) != null)
-                        xformLines.Add(line);
+                    String xformLine;
+                    while ((xformLine = xformReader.ReadLine()) != null)
+                        xformLines.Add(xformLine);
                 }
             }
 
-            for (int i = 0; i < lines.Length; i++)
+            String line = null;
+            io.StreamReader reader = new io.StreamReader(sourceStream);
+            io.StreamWriter writer = null;
+
+            if (destinationStream == null)
+                writer = new io.StreamWriter(sourceStream);
+            else
+                writer = new io.StreamWriter(destinationStream);
+
+            while ((line = reader.ReadLine()) != null)
             {
                 // Apply Settings From Transform File
                 if (xformLines != null)
@@ -260,9 +489,9 @@ namespace Synapse.Handlers.FileUtil
                         else
                             continue;
 
-                        if (Regex.IsMatch(lines[i], key))
+                        if (Regex.IsMatch(line, key))
                         {
-                            lines[i] = DoRegexReplaceWithAutoSave(lines[i], key, value, RegexOptions.IgnoreCase);
+                            line = DoRegexReplaceWithAutoSave(line, key, value, RegexOptions.IgnoreCase);
                         }
                     }
                 }
@@ -270,23 +499,21 @@ namespace Synapse.Handlers.FileUtil
                 // Apply Settings From Package
                 foreach (KeyValuePair<String, String> setting in settings)
                 {
-                    if (Regex.IsMatch(lines[i], setting.Key))
+                    if (Regex.IsMatch(line, setting.Key))
                     {
                         if (setting.Value != null)
                         {
                             String localValue = setting.Value;
-                            lines[i] = DoRegexReplaceWithAutoSave(lines[i], setting.Key, localValue, RegexOptions.IgnoreCase);
+                            line = DoRegexReplaceWithAutoSave(line, setting.Key, localValue, RegexOptions.IgnoreCase);
                         }
                         else
-                            lines[i] = DoRegexReplaceWithAutoSave(lines[i], setting.Key, "", RegexOptions.IgnoreCase);
+                            line = DoRegexReplaceWithAutoSave(line, setting.Key, "", RegexOptions.IgnoreCase);
                     }
                 }
-            }
 
-            if (String.IsNullOrWhiteSpace(destinationFile))
-                System.IO.File.WriteAllLines(sourceFile, lines);
-            else
-                System.IO.File.WriteAllLines(destinationFile, lines);
+                writer.WriteLine(line);
+            }
+            writer.Flush();
         }
 
         //

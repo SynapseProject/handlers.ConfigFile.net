@@ -20,13 +20,11 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool Recursive { get; set; } = true;
         [XmlElement]
-        public bool IgnoreReadOnly { get; set; } = true;
-        [XmlElement]
-        public bool UseTransaction { get; set; } = false;
-        [XmlElement]
-        public bool FailIfMissing { get; set; } = true;
+        public bool FailIfMissing { get; set; } = false;
         [XmlElement]
         public bool Verbose { get; set; } = true;
+        [XmlElement]
+        public AwsConfig Aws { get; set; }
     }
 
 }

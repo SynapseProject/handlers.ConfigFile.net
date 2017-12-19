@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using Alphaleonis.Win32.Filesystem;
 
 using Synapse.Core;
+using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 
@@ -20,6 +21,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<DeleteFileHandlerConfig>(configStr);
+        HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 
@@ -29,7 +31,6 @@ public class DeleteFileHandler : HandlerRuntimeBase
 
         config.Recursive = true;
         config.IgnoreReadOnly = true;
-        config.UseTransaction = false;
         config.FailIfMissing = true;
         config.Verbose = true;
 
@@ -44,6 +45,8 @@ public class DeleteFileHandler : HandlerRuntimeBase
         parms.Targets.Add(@"C:\MyDir\MyFile.txt");
         parms.Targets.Add(@"C:\MyDir\MySubDir\");
         parms.Targets.Add(@"\\server\share$\dir\file.dat");
+        parms.Targets.Add(@"s3://mybucket/dir/subdir/");
+        parms.Targets.Add(@"s3://mybucket/dir/dir2/MyFile.txt");
 
         return parms;
     }
@@ -52,53 +55,66 @@ public class DeleteFileHandler : HandlerRuntimeBase
     {
         ExecuteResult result = new ExecuteResult();
         result.Status = StatusType.Success;
+        int cheapSequence = 0;
 
-        if (startInfo.Parameters != null)
-            parameters = HandlerUtils.Deserialize<DeleteFileHandlerParameters>(startInfo.Parameters);
-
-        bool isValid = Validate();
-
-        if (isValid)
+        OnProgress("DeleteFileHandler", "Handler Execution Begins.", StatusType.Running, 0, cheapSequence++);
+        try
         {
-            if (parameters.Targets != null)
-            {                
-                DeleteUtil util = new DeleteUtil(config);
-                if (config.UseTransaction)
-                    util.Transaction.Start();
+            if (startInfo.Parameters != null)
+                parameters = HandlerUtils.Deserialize<DeleteFileHandlerParameters>(startInfo.Parameters);
 
-                foreach (String target in parameters.Targets)
+            bool isValid = Validate();
+
+            if (isValid)
+            {
+                if (parameters.Targets != null)
                 {
-                    util.Delete(target, "Delete", Logger, startInfo.IsDryRun);
+                    foreach (String target in parameters.Targets)
+                    {
+                        if (Utilities.IsDirectory(target))
+                        {
+                            SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
+                            dir.Delete(null, "DeleteFileHandler", Logger);
+                        }
+                        else
+                        {
+                            SynapseFile file = Utilities.GetSynapseFile(target);
+                            file.Delete(null, "DeleteFileHandler", Logger);
+                        }
+                    }
                 }
-
-                if (config.UseTransaction)
-                    util.Transaction.Stop();
-
+            }
+            else
+            {
+                OnLogMessage("DeleteFileHandler", "Validation Failed.", LogLevel.Error);
+                throw new Exception("Invalid Input Received");
             }
         }
-        else
-            throw new Exception("Invalid Input Received");
+        catch (Exception e)
+        {
+            OnProgress("DeleteFileHandler", "Handler Execution Failed.", StatusType.Failed, 0, cheapSequence++, false, e);
+            throw e;
+        }
 
+        OnProgress("DeleteFileHandler", "Handler Execution Completed.", StatusType.Complete, 0, cheapSequence++);
         return result;
     }
 
     private bool Validate()
     {
         bool isValid = true;
+        HashSet<UrlType> urlTypes = new HashSet<UrlType>();
         if (parameters.Targets != null)
         {
-            if (config.UseTransaction)
+            foreach (String target in parameters.Targets)
+                urlTypes.Add(Utilities.GetUrlType(target));
+
+            if (config.Aws == null && (urlTypes.Contains(UrlType.AwsS3Directory) || urlTypes.Contains(UrlType.AwsS3File)))
             {
-                foreach (String target in parameters.Targets)
-                {
-                    DriveInfo drive = new DriveInfo(target);
-                    if (drive.IsUnc)
-                    {
-                        OnLogMessage("Validate", "UseTransaction Not Supported On [" + drive.DriveType + "] Drives.  [" + target + "]");
-                        isValid = false;
-                    }
-                }
+                OnLogMessage("Validate", "Aws Config Section Required When One Or More Endpoints Are Amazon S3 Buckets.");
+                isValid = false;
             }
+
         }
 
         return isValid;
@@ -108,6 +124,4 @@ public class DeleteFileHandler : HandlerRuntimeBase
     {
         OnLogMessage(context, message);
     }
-
-
 }

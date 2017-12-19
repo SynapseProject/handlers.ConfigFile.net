@@ -25,6 +25,8 @@ namespace Synapse.Handlers.FileUtil
         public bool CreateSettingIfNotFound { get; set; } = false;
         [XmlElement]
         public bool RunSequential { get; set; } = false;
+        [XmlElement]
+        public AwsConfig Aws { get; set; }
     }
 
 }

@@ -23,29 +23,41 @@ namespace Synapse.Filesystem
         public override String Parent { get { return dirInfo?.Parent?.FullName; } }
         public override String Root { get { return dirInfo?.Root?.FullName; } }
 
-        public override SynapseDirectory Create(string childDirName = null)
+        public override SynapseDirectory Create(string childDirName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
-            if (childDirName == null)
+            if (childDirName == null || childDirName == FullName)
             {
                 if ( !Directory.Exists( FullName ) )
                     Directory.CreateDirectory( FullName );
+                callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Created." );
                 return this;
             }
             else
             {
                 String childDirNameString = PathCombine( FullName, childDirName );
                 WindowsSynapseDirectory synDir = new WindowsSynapseDirectory( childDirNameString );
-                synDir.Create();
+                synDir.Create(null, callbackLabel, callback);
                 return synDir;
             }
         }
 
-        public override void Delete(string dirName = null)
+        public override SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            return new WindowsSynapseFile(fullName);
+        }
+
+        public override void Delete(string dirName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( dirName == null )
+            {
                 Directory.Delete( FullName, true );
+                callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Deleted." );
+            }
             else
+            {
                 Directory.Delete( dirName, true );
+                callback?.Invoke( callbackLabel, $"Directory [{dirName}] Was Deleted." );
+            }
 
             dirInfo = null;
         }

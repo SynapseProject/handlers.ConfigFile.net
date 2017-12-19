@@ -15,37 +15,55 @@ namespace Synapse.Filesystem
         public abstract String Parent { get; }
         public abstract String Root { get; }
 
-        public abstract SynapseDirectory Create(string childDirName = null);
-        public abstract void Delete(string dirName = null);
+        public abstract SynapseDirectory Create(string childDirName = null, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void Delete(string dirName = null, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string dirName = null);
+
+        public abstract SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null);
 
         public abstract IEnumerable<SynapseDirectory> GetDirectories();
         public abstract IEnumerable<SynapseFile> GetFiles();
         public abstract String PathCombine(params string[] paths);
 
-        public void CopyTo(SynapseDirectory target, bool recurse = true, bool overwrite = true)
+        public void CopyTo(SynapseDirectory target, bool recurse = true, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
+        {
+            foreach ( SynapseDirectory childDir in GetDirectories() )
+            {
+                String targetDirName = target.PathCombine(target.FullName, $"{childDir.Name}/");
+                SynapseDirectory targetChild = target.Create(targetDirName);
+                if (recurse)
+                    childDir.CopyTo(targetChild, recurse, overwrite, callbackLabel, callback);
+            }
+
+            foreach (SynapseFile file in GetFiles())
+            {
+                String targetFileName = target.PathCombine(target.FullName, file.Name);
+                SynapseFile targetFile = target.CreateFile(targetFileName, callbackLabel, callback);
+                file.CopyTo(targetFile, overwrite, callbackLabel, callback);
+            }
+
+            callback?.Invoke(callbackLabel,  $"Copied Directory [{this.FullName}] to [{target.FullName}]." );
+
+        }
+
+        public void MoveTo(SynapseDirectory target, bool recurse = true, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             foreach ( SynapseDirectory childDir in GetDirectories() )
             {
                 SynapseDirectory targetChild = target.Create( childDir.Name );
                 if ( recurse )
-                    childDir.CopyTo( targetChild );
+                    childDir.MoveTo( targetChild, recurse, overwrite, callbackLabel, callback );
+                childDir.Delete();
             }
 
-            foreach ( SynapseFile file in GetFiles())
+            foreach ( SynapseFile file in GetFiles() )
             {
                 String targetFileName = target.PathCombine( target.FullName, file.Name );
                 SynapseFile targetFile = file.Create( targetFileName );
-                file.CopyTo( targetFile );
+                file.MoveTo( targetFile, overwrite, callbackLabel, callback );
             }
 
-            Console.WriteLine( $"Copied Directory [{this.FullName}] to [{target.FullName}]." );
-
-        }
-
-        public void MoveTo(SynapseDirectory target, bool recurse = true, bool overwrite = true)
-        {
-            Console.WriteLine( $"Moved Directory [{this.FullName}] to [{target.FullName}]." );
+            callback?.Invoke( callbackLabel, $"Moved Directory [{this.FullName}] to [{target.FullName}]." );
         }
 
         public bool IsEmpty()
@@ -53,13 +71,13 @@ namespace Synapse.Filesystem
             return (GetDirectories().Count() == 0 && GetFiles().Count() == 0);
         }
 
-        public void Clear(string dirName = null)
+        public void Clear(string dirName = null, String callbackLabel = null, Action<string, string> callback = null)
         {
             foreach ( SynapseDirectory dir in GetDirectories() )
-                dir.Delete();
+                dir.Delete(null, callbackLabel, callback);
 
             foreach ( SynapseFile file in GetFiles() )
-                file.Delete();
+                file.Delete(null, callbackLabel, callback);
         }
 
 
