@@ -21,13 +21,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<DeleteFileHandlerConfig>(configStr);
-
-        if (config.Aws != null)
-        {
-            AwsClient.Initialize(config.Aws.AwsRegion);
-            OnLogMessage("Initialize", "Aws Client Initialized.");
-        }
-
+        HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 

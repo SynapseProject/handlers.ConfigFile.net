@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 using Synapse.Core;
+using Synapse.Filesystem;
 using Synapse.Core.Utilities;
 
 namespace Synapse.Handlers.FileUtil
@@ -93,5 +94,29 @@ namespace Synapse.Handlers.FileUtil
 
             return decodedStr;
         }
+
+        public static void InitAwsClient(AwsConfig aws)
+        {
+            if (aws != null)
+            {
+                bool hasAccessKey = (!String.IsNullOrWhiteSpace(aws.AccessKey));
+                bool hasSecretKey = (!String.IsNullOrWhiteSpace(aws.SecretKey));
+                bool hasRegion = (!String.IsNullOrWhiteSpace(aws.Region));
+
+                if (hasAccessKey && hasSecretKey)
+                {
+                    if (hasRegion)
+                        AwsClient.Initialize(aws.AccessKey, aws.SecretKey, aws.AwsRegion);
+                    else
+                        AwsClient.Initialize(aws.AccessKey, aws.SecretKey);
+                }
+                else if (hasRegion)
+                    AwsClient.Initialize(aws.AwsRegion);
+                else
+                    AwsClient.Initialize();     // Pull All Details From Environemnt Variables / Credentails Files
+            }
+        }
+
+
     }
 }
