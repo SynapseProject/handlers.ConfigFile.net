@@ -97,7 +97,6 @@ public class ModifyFileHandler : HandlerRuntimeBase
         if (file.CreateSettingIfNotFound.HasValue)
             createIfMissing = file.CreateSettingIfNotFound.Value;
 
-        // TODO : Make Work With S3 Buckets
         if (config.BackupSource)
         {
             SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
