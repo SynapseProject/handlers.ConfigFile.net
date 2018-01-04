@@ -80,13 +80,13 @@ namespace Synapse.Filesystem
             {
                 File.Delete( FullName );
                 if (verbose)
-                    callback?.Invoke( callbackLabel, $"File [{FullName}] Was Deleted." );
+                    Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
             }
             else
             {
                 File.Delete( fileName );
                 if (verbose)
-                    callback?.Invoke( callbackLabel, $"File [{fileName}] Was Deleted." );
+                    Logger.Log($"File [{fileName}] Was Deleted.", callbackLabel, callback);
             }
         }
 

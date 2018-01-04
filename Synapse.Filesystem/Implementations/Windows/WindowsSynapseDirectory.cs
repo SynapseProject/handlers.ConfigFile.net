@@ -52,13 +52,13 @@ namespace Synapse.Filesystem
             {
                 Directory.Delete( FullName, true );
                 if (verbose)
-                    callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Deleted." );
+                    Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
             }
             else
             {
                 Directory.Delete( dirName, true );
                 if (verbose)
-                    callback?.Invoke( callbackLabel, $"Directory [{dirName}] Was Deleted." );
+                    Logger.Log($"Directory [{dirName}] Was Deleted.", callbackLabel, callback);
             }
 
             dirInfo = null;

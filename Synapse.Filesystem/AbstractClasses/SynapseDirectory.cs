@@ -43,7 +43,7 @@ namespace Synapse.Filesystem
             }
 
             if (verbose)
-                callback?.Invoke(callbackLabel,  $"Copied Directory [{this.FullName}] to [{target.FullName}]." );
+                Logger.Log($"Copied Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
 
         }
 
@@ -65,7 +65,7 @@ namespace Synapse.Filesystem
             }
 
             if (verbose)
-                callback?.Invoke( callbackLabel, $"Moved Directory [{this.FullName}] to [{target.FullName}]." );
+                Logger.Log($"Moved Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
         }
 
         public bool IsEmpty()

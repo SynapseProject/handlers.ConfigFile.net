@@ -45,11 +45,11 @@ namespace Synapse.Filesystem
             //source.CopyTo(target, true, "Sandbox", ConsoleWriter);
 
             // Copy File (Local) To Directory (S3)
-            String sourceFile = @"C:\Temp\Source\YamlDotNet.xml";
-            String targetDir = @"s3://wagug0-test/Destination/";
-            WindowsSynapseFile source = new WindowsSynapseFile(sourceFile);
-            AwsS3SynapseDirectory target = new AwsS3SynapseDirectory(targetDir);
-            source.CopyTo(target, true, true, "Sandbox", ConsoleWriter);
+            //String sourceFile = @"C:\Temp\Source\YamlDotNet.xml";
+            //String targetDir = @"s3://wagug0-test/Destination/";
+            //WindowsSynapseFile source = new WindowsSynapseFile(sourceFile);
+            //AwsS3SynapseDirectory target = new AwsS3SynapseDirectory(targetDir);
+            //source.CopyTo(target, true, true, "Sandbox", ConsoleWriter);
 
             //String sourceFile = @"s3://wagug0-test/Source/Synapseliverance.yaml";
             //String targetFile = @"s3://wagug0-test/Destination/Synapseliverance.yaml";
@@ -128,9 +128,6 @@ namespace Synapse.Filesystem
             //synTargetDir.Clear(null, "Sandbox", ConsoleWriter);
             //Console.WriteLine("================================");
             //synSourceDir.MoveTo(synTargetDir, true, true, "Sandbox", ConsoleWriter);
-
-
-
 
             Console.WriteLine( "Press <ENTER> To Continue..." );
             Console.ReadLine();

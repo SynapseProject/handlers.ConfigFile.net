@@ -39,30 +39,32 @@ namespace Synapse.Filesystem
             file.CloseStream();
 
             if (verbose)
-                callback?.Invoke(callbackLabel, $"Copied File [{this.FullName}] to [{file.FullName}].");
+                Logger.Log($"Copied File [{this.FullName}] to [{file.FullName}].", callbackLabel, callback);
         }
 
         public void MoveTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            CopyTo(file, verbose);
+            CopyTo(file, true, false);
             this.Delete();
-            callback?.Invoke(callbackLabel, $"Moved File [{this.FullName}] to [{file.FullName}].");
+            if (verbose)
+                Logger.Log($"Moved File [{this.FullName}] to [{file.FullName}].", callbackLabel, callback);
         }
 
         public void CopyTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             String targetFilePath = dir.PathCombine(dir.FullName, this.Name);
             SynapseFile targetFile = dir.CreateFile(targetFilePath);
-            CopyTo(targetFile, overwrite, verbose);
-            callback?.Invoke(callbackLabel, $"Copied File [{this.FullName}] to [{dir.FullName}].");
+            CopyTo(targetFile, overwrite, false);
+            if (verbose)
+                Logger.Log($"Copied File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);
         }
 
         public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            CopyTo(dir, overwrite, verbose);
+            CopyTo(dir, overwrite, false);
             this.Delete();
-            callback?.Invoke(callbackLabel, $"Moved File [{this.FullName}] to [{dir.FullName}].");
-
+            if (verbose)
+                Logger.Log($"Moved File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);
         }
     }
 }
