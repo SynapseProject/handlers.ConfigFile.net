@@ -81,6 +81,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                     {
                         if (set != null && set.Sources != null && set.Destinations != null)
                         {
+                            OnLogMessage("CopyFileHandler", $"Starting {config.Action} From [{string.Join(",", set.Sources.ToArray())}] To [{string.Join(",", set.Destinations)}].");
                             foreach (String source in set.Sources)
                             {
                                 foreach (String destination in set.Destinations)
@@ -93,9 +94,9 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move Directory To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceDir.CopyTo(destDir, true, true, "Copy", Logger);
+                                                sourceDir.CopyTo(destDir, true, true, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceDir.MoveTo(destDir, true, true, "Move", Logger);
+                                                sourceDir.MoveTo(destDir, true, true, config.Verbose, "Move", Logger);
                                         }
                                         else
                                         {
@@ -111,22 +112,23 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move File To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destDir, true, "Copy", Logger);
+                                                sourceFile.CopyTo(destDir, true, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destDir, true, "Copy", Logger);
+                                                sourceFile.MoveTo(destDir, true, config.Verbose, "Copy", Logger);
                                         }
                                         else
                                         {
                                             // Copy/Move File To File
                                             SynapseFile destFile = Utilities.GetSynapseFile(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destFile, true, "Copy", Logger);
+                                                sourceFile.CopyTo(destFile, true, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destFile, true, "Copy", Logger);
+                                                sourceFile.MoveTo(destFile, true, config.Verbose, "Copy", Logger);
                                         }
                                     }
                                 }
                             }
+                            OnLogMessage("CopyFileHandler", $"Finished {config.Action} From [{string.Join(",", set.Sources.ToArray())}] To [{string.Join(",", set.Destinations)}].");
                         }
                     }
                 }

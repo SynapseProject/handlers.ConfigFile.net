@@ -49,7 +49,7 @@ namespace Synapse.Filesystem
             String targetDir = @"s3://wagug0-test/Destination/";
             WindowsSynapseFile source = new WindowsSynapseFile(sourceFile);
             AwsS3SynapseDirectory target = new AwsS3SynapseDirectory(targetDir);
-            source.CopyTo(target, true, "Sandbox", ConsoleWriter);
+            source.CopyTo(target, true, true, "Sandbox", ConsoleWriter);
 
             //String sourceFile = @"s3://wagug0-test/Source/Synapseliverance.yaml";
             //String targetFile = @"s3://wagug0-test/Destination/Synapseliverance.yaml";

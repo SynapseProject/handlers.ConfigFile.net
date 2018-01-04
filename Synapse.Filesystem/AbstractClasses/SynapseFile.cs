@@ -20,7 +20,7 @@ namespace Synapse.Filesystem
         }
 
         public abstract SynapseFile Create(string fileName = null, String callbackLabel = null, Action<string, string> callback = null);
-        public abstract void Delete(string fileName = null, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void Delete(string fileName = null, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string fileName = null);
 
         public abstract SynapseDirectory CreateDirectory(string dirName, String callbackLabel = null, Action<string, string> callback = null);
@@ -28,7 +28,7 @@ namespace Synapse.Filesystem
         public abstract Stream OpenStream(AccessType access, String callbackLabel = null, Action<string, string> callback = null);
         public abstract void CloseStream(String callbackLabel = null, Action<string, string> callback = null);
 
-        public void CopyTo(SynapseFile file, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void CopyTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             Stream source = this.OpenStream(AccessType.Read);
             Stream target = file.OpenStream(AccessType.Write);
@@ -38,34 +38,32 @@ namespace Synapse.Filesystem
             this.CloseStream();
             file.CloseStream();
 
-            callback?.Invoke(callbackLabel, $"Copied File [{this.FullName}] to [{file.FullName}].");
+            if (verbose)
+                callback?.Invoke(callbackLabel, $"Copied File [{this.FullName}] to [{file.FullName}].");
         }
 
-        public void MoveTo(SynapseFile file, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void MoveTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            CopyTo(file);
+            CopyTo(file, verbose);
             this.Delete();
             callback?.Invoke(callbackLabel, $"Moved File [{this.FullName}] to [{file.FullName}].");
         }
 
-        public void CopyTo(SynapseDirectory dir, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void CopyTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             String targetFilePath = dir.PathCombine(dir.FullName, this.Name);
             SynapseFile targetFile = dir.CreateFile(targetFilePath);
-            CopyTo(targetFile, overwrite);
+            CopyTo(targetFile, overwrite, verbose);
             callback?.Invoke(callbackLabel, $"Copied File [{this.FullName}] to [{dir.FullName}].");
         }
 
-        public void MoveTo(SynapseDirectory dir, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            CopyTo(dir, overwrite);
+            CopyTo(dir, overwrite, verbose);
             this.Delete();
             callback?.Invoke(callbackLabel, $"Moved File [{this.FullName}] to [{dir.FullName}].");
 
         }
-
-
-
     }
 }
 

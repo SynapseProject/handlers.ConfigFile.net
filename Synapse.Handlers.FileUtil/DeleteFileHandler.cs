@@ -30,7 +30,6 @@ public class DeleteFileHandler : HandlerRuntimeBase
         DeleteFileHandlerConfig config = new DeleteFileHandlerConfig();
 
         config.Recursive = true;
-        config.IgnoreReadOnly = true;
         config.FailIfMissing = true;
         config.Verbose = true;
 
@@ -69,19 +68,21 @@ public class DeleteFileHandler : HandlerRuntimeBase
             {
                 if (parameters.Targets != null)
                 {
+                    OnLogMessage("DeleteFileHandler", $"Starting Delete Of [{string.Join(",", parameters.Targets.ToArray())}]");
                     foreach (String target in parameters.Targets)
                     {
                         if (Utilities.IsDirectory(target))
                         {
                             SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
-                            dir.Delete(null, "DeleteFileHandler", Logger);
+                            dir.Delete(null, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {
                             SynapseFile file = Utilities.GetSynapseFile(target);
-                            file.Delete(null, "DeleteFileHandler", Logger);
+                            file.Delete(null, config.Verbose, "DeleteFileHandler", Logger);
                         }
                     }
+                    OnLogMessage("DeleteFileHandler", $"Finished Delete Of [{string.Join(",", parameters.Targets.ToArray())}]");
                 }
             }
             else

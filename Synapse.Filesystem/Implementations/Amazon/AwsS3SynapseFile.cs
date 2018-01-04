@@ -96,13 +96,14 @@ namespace Synapse.Filesystem
             return new AwsS3SynapseDirectory(dirName);
         }
 
-        public override void Delete(string fileName = null, string callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string fileName = null, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )
             {
                 S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
                 fileInfo.Delete();
-                callback?.Invoke( callbackLabel, $"File [{FullName}] Was Deleted." );
+                if (verbose)
+                    callback?.Invoke( callbackLabel, $"File [{FullName}] Was Deleted." );
             }
             else
             {
