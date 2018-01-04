@@ -32,7 +32,7 @@ public class CopyFileHandler : HandlerRuntimeBase
 
         config.Action = FileAction.Copy;
         config.OverwriteExisting = true;
-        config.IncludeSubdirectories = true;
+        config.Recursive = true;
         config.PurgeDestination = false;
         config.Verbose = true;
 
@@ -94,9 +94,9 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move Directory To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceDir.CopyTo(destDir, true, true, config.Verbose, "Copy", Logger);
+                                                sourceDir.CopyTo(destDir, config.Recursive, true, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceDir.MoveTo(destDir, true, true, config.Verbose, "Move", Logger);
+                                                sourceDir.MoveTo(destDir, true, config.Verbose, "Move", Logger);
                                         }
                                         else
                                         {

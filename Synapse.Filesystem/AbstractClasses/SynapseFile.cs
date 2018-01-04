@@ -45,7 +45,7 @@ namespace Synapse.Filesystem
         public void MoveTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             CopyTo(file, true, false);
-            this.Delete();
+            this.Delete(verbose: false);
             if (verbose)
                 Logger.Log($"Moved File [{this.FullName}] to [{file.FullName}].", callbackLabel, callback);
         }
@@ -62,7 +62,7 @@ namespace Synapse.Filesystem
         public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             CopyTo(dir, overwrite, false);
-            this.Delete();
+            this.Delete(verbose: false);
             if (verbose)
                 Logger.Log($"Moved File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);
         }

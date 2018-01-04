@@ -74,7 +74,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
                         if (Utilities.IsDirectory(target))
                         {
                             SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
-                            dir.Delete(null, config.Verbose, "DeleteFileHandler", Logger);
+                            dir.Delete(null, config.Recursive, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {

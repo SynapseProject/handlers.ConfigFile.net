@@ -23,7 +23,7 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool OverwriteExisting { get; set; } = true;
         [XmlElement]
-        public bool IncludeSubdirectories { get; set; } = true;
+        public bool Recursive { get; set; } = true;
         [XmlElement]
         public bool PurgeDestination { get; set; } = false;
         [XmlElement]

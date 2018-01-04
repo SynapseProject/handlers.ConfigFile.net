@@ -99,22 +99,32 @@ namespace Synapse.Filesystem
             return new AwsS3SynapseFile(fullName);
         }
 
-        public override void Delete(string dirName = null, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string dirName = null, bool recurse = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
         {
             if (dirName == null || dirName == FullName)
             {
                 String key = ObjectKey;
-                if (key.EndsWith("/"))
+                key = key.Replace('/', '\\');
+                if (key.EndsWith("\\"))
                     key = key.Substring(0, key.Length - 1);
                 S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, key );
-                dirInfo.Delete( true );
+
+                if (!recurse)
+                {
+                    int dirs = dirInfo.GetDirectories().Length;
+                    int files = dirInfo.GetFiles().Length;
+                    if (dirs > 0 || files > 0)
+                        throw new Exception($"Directory [{FullName}] is not empty.");
+                }
+
+                dirInfo.Delete( recurse );
                 if (verbose)
                     Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
             }
             else
             {
                 AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( dirName );
-                newDir.Delete();
+                newDir.Delete(recurse: recurse);
             }
         }
 

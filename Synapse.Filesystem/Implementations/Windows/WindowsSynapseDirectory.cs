@@ -46,19 +46,29 @@ namespace Synapse.Filesystem
             return new WindowsSynapseFile(fullName);
         }
 
-        public override void Delete(string dirName = null, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string dirName = null, bool recurse = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            if ( dirName == null )
+            if ( dirName == null || dirName == FullName)
             {
-                Directory.Delete( FullName, true );
+                DirectoryInfo dirInfo = new DirectoryInfo(FullName);
+
+                if (!recurse)
+                {
+                    int dirs = dirInfo.GetDirectories().Length;
+                    int files = dirInfo.GetFiles().Length;
+                    if (dirs > 0 || files > 0)
+                        throw new Exception($"Directory [{FullName}] is not empty.");
+                }
+
+                dirInfo.Delete(recurse);
+
                 if (verbose)
                     Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
             }
             else
             {
-                Directory.Delete( dirName, true );
-                if (verbose)
-                    Logger.Log($"Directory [{dirName}] Was Deleted.", callbackLabel, callback);
+                WindowsSynapseDirectory dir = new WindowsSynapseDirectory(dirName);
+                dir.Delete(null, recurse, verbose, callbackLabel, callback);
             }
 
             dirInfo = null;
