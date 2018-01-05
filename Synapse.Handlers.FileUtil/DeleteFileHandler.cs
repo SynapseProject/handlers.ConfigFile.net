@@ -29,7 +29,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
     {
         DeleteFileHandlerConfig config = new DeleteFileHandlerConfig();
 
-        config.Recursive = true;
+        config.Recurse = true;
         config.FailIfMissing = true;
         config.Verbose = true;
 
@@ -74,7 +74,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
                         if (Utilities.IsDirectory(target))
                         {
                             SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
-                            dir.Delete(null, config.Recursive, config.Verbose, "DeleteFileHandler", Logger);
+                            dir.Delete(null, config.Recurse, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {

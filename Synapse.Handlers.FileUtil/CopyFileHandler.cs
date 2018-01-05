@@ -32,7 +32,7 @@ public class CopyFileHandler : HandlerRuntimeBase
 
         config.Action = FileAction.Copy;
         config.OverwriteExisting = true;
-        config.Recursive = true;
+        config.Recurse = true;
         config.PurgeDestination = false;
         config.Verbose = true;
 
@@ -82,9 +82,16 @@ public class CopyFileHandler : HandlerRuntimeBase
                         if (set != null && set.Sources != null && set.Destinations != null)
                         {
                             OnLogMessage("CopyFileHandler", $"Starting {config.Action} From [{string.Join(",", set.Sources.ToArray())}] To [{string.Join(",", set.Destinations)}].");
-                            foreach (String source in set.Sources)
+                            foreach (String destination in set.Destinations)
                             {
-                                foreach (String destination in set.Destinations)
+                                if (Utilities.IsDirectory(destination) && config.PurgeDestination)
+                                {
+                                    SynapseDirectory clearDir = Utilities.GetSynapseDirectory(destination);
+                                    clearDir.Clear(null, config.Verbose, "Purge", Logger);
+                                    OnLogMessage("CopyFileHandler", $"Directory [{destination}] Was Purged.");
+                                }
+
+                                foreach (String source in set.Sources)
                                 {
                                     if (Utilities.IsDirectory(source))
                                     {
@@ -94,7 +101,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move Directory To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceDir.CopyTo(destDir, config.Recursive, true, config.Verbose, "Copy", Logger);
+                                                sourceDir.CopyTo(destDir, config.Recurse, true, config.Verbose, "Copy", Logger);
                                             else
                                                 sourceDir.MoveTo(destDir, true, config.Verbose, "Move", Logger);
                                         }

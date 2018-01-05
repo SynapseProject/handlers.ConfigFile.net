@@ -18,7 +18,7 @@ namespace Synapse.Handlers.FileUtil
     public class DeleteFileHandlerConfig
     {
         [XmlElement]
-        public bool Recursive { get; set; } = true;
+        public bool Recurse { get; set; } = true;
         [XmlElement]
         public bool FailIfMissing { get; set; } = false;
         [XmlElement]
