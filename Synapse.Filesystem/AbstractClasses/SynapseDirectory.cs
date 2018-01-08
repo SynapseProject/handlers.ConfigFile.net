@@ -15,7 +15,7 @@ namespace Synapse.Filesystem
         public abstract String Parent { get; }
         public abstract String Root { get; }
 
-        public abstract SynapseDirectory Create(string childDirName = null, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract SynapseDirectory Create(string childDirName = null, bool failIfExists = false, String callbackLabel = null, Action<string, string> callback = null);
         public abstract void Delete(string dirName = null, bool recurse = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string dirName = null);
 
@@ -59,7 +59,7 @@ namespace Synapse.Filesystem
             foreach ( SynapseFile file in GetFiles() )
             {
                 String targetFileName = target.PathCombine( target.FullName, file.Name );
-                SynapseFile targetFile = file.Create( targetFileName );
+                SynapseFile targetFile = file.Create( targetFileName, overwrite );
                 file.MoveTo( targetFile, overwrite, verbose, callbackLabel, callback );
             }
 

@@ -52,19 +52,30 @@ namespace Synapse.Filesystem
 
         }
 
-        public override SynapseFile Create(string fileName = null, String callbackLabel = null, Action<string, string> callback = null)
+        public override SynapseFile Create(string fileName = null, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName)
             {
-                fileStream = File.Open( FullName, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
-                isStreamOpen = true;    // Opens Stream as Write By Default
-                callback?.Invoke( callbackLabel, $"File [{FullName}] Was Created." );
-                return this;
+                try
+                {
+                    if (this.Exists() && !overwrite)
+                        throw new Exception($"File [{this.FullName}] Already Exists.");
+
+                    fileStream = File.Open(FullName, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+                    isStreamOpen = true;    // Opens Stream as Write By Default
+                    callback?.Invoke(callbackLabel, $"File [{FullName}] Was Created.");
+                    return this;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log($"ERROR - {e.Message}", callbackLabel, callback);
+                    throw;
+                }
             }
             else
             {
                 WindowsSynapseFile synFile = new WindowsSynapseFile( fileName );
-                synFile.Create( null, callbackLabel, callback );
+                synFile.Create( null, overwrite, callbackLabel, callback );
                 return synFile;
             }
         }

@@ -73,20 +73,32 @@ namespace Synapse.Filesystem
             }
         }
 
-        public override SynapseFile Create(string fileName = null, string callbackLabel = null, Action<string, string> callback = null)
+        public override SynapseFile Create(string fileName = null, bool overwrite = true, string callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )
             {
-                S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
-                fileStream = fileInfo.Create();
-                isStreamOpen = true;            // Opens Stream As "Write" By Default
-                callback?.Invoke( callbackLabel, $"File [{FullName}] Was Created." );
-                return this;
+                try
+                {
+                    if (this.Exists() && !overwrite)
+                        throw new Exception($"File [{this.FullName}] Already Exists.");
+
+                    S3FileInfo fileInfo = new S3FileInfo(AwsClient.Client, BucketName, ObjectKey);
+                    fileStream = fileInfo.Create();
+                    isStreamOpen = true;            // Opens Stream As "Write" By Default
+                    callback?.Invoke(callbackLabel, $"File [{FullName}] Was Created.");
+                    return this;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log($"ERROR - {e.Message}", callbackLabel, callback);
+                    throw;
+
+                }
             }
             else
             {
                 AwsS3SynapseFile file = new AwsS3SynapseFile( fileName );
-                file.Create( null );
+                file.Create( null, overwrite );
                 return file;
             }
         }
@@ -116,7 +128,9 @@ namespace Synapse.Filesystem
         {
             if (fileName == null || fileName == FullName)
             {
-                S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
+                String key = ObjectKey;
+                key = key.Replace('/', '\\');
+                S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, key );
                 return fileInfo.Exists;
             }
             else

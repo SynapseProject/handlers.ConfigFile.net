@@ -74,10 +74,13 @@ namespace Synapse.Filesystem
 
 
 
-        public override SynapseDirectory Create(string childDirName = null, string callbackLabel = null, Action<string, string> callback = null)
+        public override SynapseDirectory Create(string childDirName = null, bool failIfExists = false, string callbackLabel = null, Action<string, string> callback = null)
         {
             if ( childDirName == null || childDirName == FullName )
             {
+                if (this.Exists() && failIfExists)
+                    throw new Exception($"Directory [{FullName}] Already Exists.");
+
                 String key = ObjectKey;
                 if ( key.EndsWith( "/" ) )
                     key = key.Substring( 0, key.Length - 1 );
@@ -89,7 +92,7 @@ namespace Synapse.Filesystem
             else
             {
                 AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( childDirName );
-                newDir.Create();
+                newDir.Create(null, failIfExists, callbackLabel, callback);
                 return newDir;
             }
         }
@@ -132,7 +135,8 @@ namespace Synapse.Filesystem
         {
             if ( dirName == null || dirName == FullName )
             {
-                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, ObjectKey );
+                string dirInfoKey = ObjectKey.Replace('/', '\\');
+                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, dirInfoKey);
                 return dirInfo.Exists;
             }
             else

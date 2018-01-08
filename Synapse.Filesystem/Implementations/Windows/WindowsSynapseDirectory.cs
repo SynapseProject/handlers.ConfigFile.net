@@ -23,12 +23,14 @@ namespace Synapse.Filesystem
         public override String Parent { get { return dirInfo?.Parent?.FullName; } }
         public override String Root { get { return dirInfo?.Root?.FullName; } }
 
-        public override SynapseDirectory Create(string childDirName = null, String callbackLabel = null, Action<string, string> callback = null)
+        public override SynapseDirectory Create(string childDirName = null, bool failIfExists = false, String callbackLabel = null, Action<string, string> callback = null)
         {
             if (childDirName == null || childDirName == FullName)
             {
-                if ( !Directory.Exists( FullName ) )
-                    Directory.CreateDirectory( FullName );
+                if (!Directory.Exists(FullName))
+                    Directory.CreateDirectory(FullName);
+                else if (failIfExists)
+                    throw new Exception($"Directory [{FullName}] Already Exists.");
                 callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Created." );
                 return this;
             }
@@ -36,7 +38,7 @@ namespace Synapse.Filesystem
             {
                 String childDirNameString = PathCombine( FullName, childDirName );
                 WindowsSynapseDirectory synDir = new WindowsSynapseDirectory( childDirNameString );
-                synDir.Create(null, callbackLabel, callback);
+                synDir.Create(null, failIfExists, callbackLabel, callback);
                 return synDir;
             }
         }
