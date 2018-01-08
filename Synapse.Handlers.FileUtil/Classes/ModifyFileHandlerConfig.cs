@@ -26,6 +26,8 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool RunSequential { get; set; } = false;
         [XmlElement]
+        public bool OverwriteExisting { get; set; } = true;
+        [XmlElement]
         public AwsConfig Aws { get; set; }
     }
 

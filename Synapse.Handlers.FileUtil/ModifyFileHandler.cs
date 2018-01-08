@@ -78,6 +78,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
         catch (Exception e)
         {
             OnProgress("ModifyFileHandler", "Handler Execution Failed.", StatusType.Failed, 0, cheapSequence++, false, e);
+            if (e.InnerException != null)
+                OnProgress("ModifyFileHandler", "Inner Exception.", StatusType.Failed, 0, cheapSequence++, false, e.InnerException);
             throw e;
         }
 
@@ -91,6 +93,10 @@ public class ModifyFileHandler : HandlerRuntimeBase
         if (file.CreateSettingIfNotFound.HasValue)
             createIfMissing = file.CreateSettingIfNotFound.Value;
 
+        bool overwrite = config.OverwriteExisting;
+        if (file.OverwriteExisting.HasValue)
+            overwrite = file.OverwriteExisting.Value;
+
         if (config.BackupSource)
         {
             SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
@@ -103,19 +109,19 @@ public class ModifyFileHandler : HandlerRuntimeBase
         switch (config.Type)
         {
             case ConfigType.KeyValue:
-                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
                 break;
             case ConfigType.INI:
-                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing);
+                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
                 break;
             case ConfigType.Regex:
-                Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp);
+                Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
                 break;
             case ConfigType.XmlTransform:
-                Munger.XMLTransform(file.Source, file.Destination, settingsFileStream);
+                Munger.XMLTransform(file.Source, file.Destination, settingsFileStream, overwrite);
                 break;
             case ConfigType.XPath:
-                Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp);
+                Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
                 break;
             default:
                 String message = "Unknown File Type [" + config.Type + "] Received.";

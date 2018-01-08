@@ -29,6 +29,8 @@ namespace Synapse.Handlers.FileUtil
         public SettingsFileType SettingsFile { get; set; }
         [XmlElement]
         public bool? CreateSettingIfNotFound { get; set; } = null;
+        [XmlElement]
+        public bool? OverwriteExisting { get; set; } = null;
         [XmlArrayItem(ElementName = "Setting")]
         public List<SettingsPair<String, String>> Settings { get; set; }
 

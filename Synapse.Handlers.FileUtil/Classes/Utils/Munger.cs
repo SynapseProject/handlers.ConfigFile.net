@@ -21,6 +21,14 @@ namespace Synapse.Handlers.FileUtil
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
             SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
+
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
             io.Stream transformStream = transform?.OpenStream(AccessType.Read);
@@ -53,6 +61,14 @@ namespace Synapse.Handlers.FileUtil
             bool tempFileUsed = false;
             SynapseFile source = Utilities.GetSynapseFile(sourceFile);
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
 
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
@@ -106,6 +122,14 @@ namespace Synapse.Handlers.FileUtil
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
             SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
+
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
             io.Stream transformStream = transform?.OpenStream(AccessType.Read);
@@ -138,6 +162,14 @@ namespace Synapse.Handlers.FileUtil
             bool tempFileUsed = false;
             SynapseFile source = Utilities.GetSynapseFile(sourceFile);
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
 
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
@@ -253,6 +285,14 @@ namespace Synapse.Handlers.FileUtil
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
             SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
+
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
             io.Stream transformStream = transform?.OpenStream(AccessType.Read);
@@ -285,6 +325,14 @@ namespace Synapse.Handlers.FileUtil
             bool tempFileUsed = false;
             SynapseFile source = Utilities.GetSynapseFile(sourceFile);
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
 
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
@@ -386,6 +434,14 @@ namespace Synapse.Handlers.FileUtil
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
             SynapseFile transform = Utilities.GetSynapseFile(transformFile);
 
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
+
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
             io.Stream transformStream = transform?.OpenStream(AccessType.Read);
@@ -418,6 +474,14 @@ namespace Synapse.Handlers.FileUtil
             bool tempFileUsed = false;
             SynapseFile source = Utilities.GetSynapseFile(sourceFile);
             SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+
+            if (!overwrite)
+            {
+                if (destination == null)
+                    throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
+                else if (destination.Exists())
+                    throw new Exception($"Destination File [{destinationFile}] Already Exists.");
+            }
 
             io.Stream sourceStream = source?.OpenStream(AccessType.Read);
             io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
