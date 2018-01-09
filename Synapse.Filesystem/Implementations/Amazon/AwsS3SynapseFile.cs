@@ -108,22 +108,31 @@ namespace Synapse.Filesystem
             return new AwsS3SynapseDirectory(dirName);
         }
 
-        public override void Delete(string fileName = null, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string fileName = null, bool stopOnError = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )
             {
-                S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
+                try
+                {
+                    S3FileInfo fileInfo = new S3FileInfo(AwsClient.Client, BucketName, ObjectKey);
 
-                if (fileInfo.Exists)
-                    fileInfo.Delete();
+                    if (fileInfo.Exists)
+                        fileInfo.Delete();
 
-                if (verbose)
-                    Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
+                    if (verbose)
+                        Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e.Message, callbackLabel, callback);
+                    if (stopOnError)
+                        throw;
+                }
             }
             else
             {
                 AwsS3SynapseFile file = new AwsS3SynapseFile( fileName );
-                file.Delete();
+                file.Delete(stopOnError: stopOnError, verbose: verbose);
             }
         }
 

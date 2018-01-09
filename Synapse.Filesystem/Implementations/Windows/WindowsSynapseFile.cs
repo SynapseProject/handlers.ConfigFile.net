@@ -85,16 +85,25 @@ namespace Synapse.Filesystem
             return new WindowsSynapseDirectory(dirName);
         }
 
-        public override void Delete(string fileName = null, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string fileName = null, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( fileName == null || fileName == FullName )
             {
-                FileInfo fileInfo = new FileInfo(FullName);
-                if (fileInfo.Exists)
-                    fileInfo.Delete();
+                try
+                {
+                    FileInfo fileInfo = new FileInfo(FullName);
+                    if (fileInfo.Exists)
+                        fileInfo.Delete();
 
-                if (verbose)
-                    Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
+                    if (verbose)
+                        Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e.Message, callbackLabel, callback);
+                    if (stopOnError)
+                        throw;
+                }
             }
             else
             {

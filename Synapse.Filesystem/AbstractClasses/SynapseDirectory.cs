@@ -16,7 +16,7 @@ namespace Synapse.Filesystem
         public abstract String Root { get; }
 
         public abstract SynapseDirectory Create(string childDirName = null, bool failIfExists = false, String callbackLabel = null, Action<string, string> callback = null);
-        public abstract void Delete(string dirName = null, bool recurse = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void Delete(string dirName = null, bool recurse = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string dirName = null);
 
         public abstract SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null);
@@ -127,13 +127,13 @@ namespace Synapse.Filesystem
             return (GetDirectories().Count() == 0 && GetFiles().Count() == 0);
         }
 
-        public void Clear(string dirName = null, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void Clear(string dirName = null, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             foreach ( SynapseDirectory dir in GetDirectories() )
-                dir.Delete(null, true, verbose, callbackLabel, callback);
+                dir.Delete(null, true, stopOnError, verbose, callbackLabel, callback);
 
             foreach ( SynapseFile file in GetFiles() )
-                file.Delete(null, verbose, callbackLabel, callback);
+                file.Delete(null, stopOnError, verbose, callbackLabel, callback);
         }
 
 

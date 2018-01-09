@@ -31,6 +31,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
 
         config.Recurse = true;
         config.Verbose = true;
+        config.StopOnError = true;
 
         return config;
     }
@@ -73,12 +74,12 @@ public class DeleteFileHandler : HandlerRuntimeBase
                         if (Utilities.IsDirectory(target))
                         {
                             SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
-                            dir.Delete(null, config.Recurse, config.Verbose, "DeleteFileHandler", Logger);
+                            dir.Delete(null, config.Recurse, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {
                             SynapseFile file = Utilities.GetSynapseFile(target);
-                            file.Delete(null, config.Verbose, "DeleteFileHandler", Logger);
+                            file.Delete(null, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                     }
                     OnLogMessage("DeleteFileHandler", $"Finished Delete Of [{string.Join(",", parameters.Targets.ToArray())}]");

@@ -48,31 +48,40 @@ namespace Synapse.Filesystem
             return new WindowsSynapseFile(fullName);
         }
 
-        public override void Delete(string dirName = null, bool recurse = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string dirName = null, bool recurse = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             if ( dirName == null || dirName == FullName)
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(FullName);
-
-                if (dirInfo.Exists)
+                try
                 {
-                    if (!recurse)
-                    {
-                        int dirs = dirInfo.GetDirectories().Length;
-                        int files = dirInfo.GetFiles().Length;
-                        if (dirs > 0 || files > 0)
-                            throw new Exception($"Directory [{FullName}] is not empty.");
-                    }
-                    dirInfo.Delete(recurse);
-                }
+                    DirectoryInfo dirInfo = new DirectoryInfo(FullName);
 
-                if (verbose)
-                    Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
+                    if (dirInfo.Exists)
+                    {
+                        if (!recurse)
+                        {
+                            int dirs = dirInfo.GetDirectories().Length;
+                            int files = dirInfo.GetFiles().Length;
+                            if (dirs > 0 || files > 0)
+                                throw new Exception($"Directory [{FullName}] is not empty.");
+                        }
+                        dirInfo.Delete(recurse);
+                    }
+
+                    if (verbose)
+                        Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e.Message, callbackLabel, callback);
+                    if (stopOnError)
+                        throw;
+                }
             }
             else
             {
                 WindowsSynapseDirectory dir = new WindowsSynapseDirectory(dirName);
-                dir.Delete(null, recurse, verbose, callbackLabel, callback);
+                dir.Delete(null, recurse, stopOnError, verbose, callbackLabel, callback);
             }
 
             dirInfo = null;

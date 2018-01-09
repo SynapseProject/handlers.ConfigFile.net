@@ -102,31 +102,40 @@ namespace Synapse.Filesystem
             return new AwsS3SynapseFile(fullName);
         }
 
-        public override void Delete(string dirName = null, bool recurse = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
+        public override void Delete(string dirName = null, bool recurse = true, bool stopOnError = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
         {
             if (dirName == null || dirName == FullName)
             {
-                String key = ObjectKey;
-                key = key.Replace('/', '\\');
-                if (key.EndsWith("\\"))
-                    key = key.Substring(0, key.Length - 1);
-                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, key );
-
-                if (dirInfo.Exists)
+                try
                 {
-                    if (!recurse)
+                    String key = ObjectKey;
+                    key = key.Replace('/', '\\');
+                    if (key.EndsWith("\\"))
+                        key = key.Substring(0, key.Length - 1);
+                    S3DirectoryInfo dirInfo = new S3DirectoryInfo(AwsClient.Client, BucketName, key);
+
+                    if (dirInfo.Exists)
                     {
-                        int dirs = dirInfo.GetDirectories().Length;
-                        int files = dirInfo.GetFiles().Length;
-                        if (dirs > 0 || files > 0)
-                            throw new Exception($"Directory [{FullName}] is not empty.");
+                        if (!recurse)
+                        {
+                            int dirs = dirInfo.GetDirectories().Length;
+                            int files = dirInfo.GetFiles().Length;
+                            if (dirs > 0 || files > 0)
+                                throw new Exception($"Directory [{FullName}] is not empty.");
+                        }
+
+                        dirInfo.Delete(recurse);
                     }
 
-                    dirInfo.Delete(recurse);
+                    if (verbose)
+                        Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
                 }
-
-                if (verbose)
-                    Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
+                catch (Exception e)
+                {
+                    Logger.Log(e.Message, callbackLabel, callback);
+                    if (stopOnError)
+                        throw;
+                }
             }
             else
             {

@@ -33,7 +33,8 @@ public class CopyFileHandler : HandlerRuntimeBase
         config.Action = FileAction.Copy;
         config.OverwriteExisting = true;
         config.Recurse = true;
-        config.PurgeDestination = false;
+        config.StopOnError = true;
+        config.PurgeDestination = true;
         config.Verbose = true;
 
         return config;
@@ -87,7 +88,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                                 if (Utilities.IsDirectory(destination) && config.PurgeDestination)
                                 {
                                     SynapseDirectory clearDir = Utilities.GetSynapseDirectory(destination);
-                                    clearDir.Clear(null, config.Verbose, "Purge", Logger);
+                                    clearDir.Clear(null, config.StopOnError, config.Verbose, "Purge", Logger);
                                     OnLogMessage("CopyFileHandler", $"Directory [{destination}] Was Purged.");
                                 }
 

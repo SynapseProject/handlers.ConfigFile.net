@@ -20,7 +20,7 @@ namespace Synapse.Filesystem
         }
 
         public abstract SynapseFile Create(string fileName = null, bool overwrite = true, String callbackLabel = null, Action<string, string> callback = null);
-        public abstract void Delete(string fileName = null, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
+        public abstract void Delete(string fileName = null, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null);
         public abstract bool Exists(string fileName = null);
 
         public abstract SynapseDirectory CreateDirectory(string dirName, String callbackLabel = null, Action<string, string> callback = null);
@@ -62,7 +62,7 @@ namespace Synapse.Filesystem
                     throw new Exception($"File [{file.FullName}] Already Exists.");
 
                 CopyTo(file, overwrite, false);
-                this.Delete(verbose: false);
+                this.Delete(stopOnError: stopOnError, verbose: false);
                 if (verbose)
                     Logger.Log($"Moved File [{this.FullName}] to [{file.FullName}].", callbackLabel, callback);
             }
@@ -86,7 +86,7 @@ namespace Synapse.Filesystem
         public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             CopyTo(dir, overwrite, stopOnError, false,callbackLabel, callback);
-            this.Delete(verbose: false);
+            this.Delete(stopOnError: stopOnError, verbose: false);
             if (verbose)
                 Logger.Log($"Moved File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);
         }
