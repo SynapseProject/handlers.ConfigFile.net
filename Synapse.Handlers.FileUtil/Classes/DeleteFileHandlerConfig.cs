@@ -20,8 +20,6 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool Recurse { get; set; } = true;
         [XmlElement]
-        public bool FailIfMissing { get; set; } = false;
-        [XmlElement]
         public bool Verbose { get; set; } = true;
         [XmlElement]
         public AwsConfig Aws { get; set; }

@@ -112,15 +112,19 @@ namespace Synapse.Filesystem
                     key = key.Substring(0, key.Length - 1);
                 S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, key );
 
-                if (!recurse)
+                if (dirInfo.Exists)
                 {
-                    int dirs = dirInfo.GetDirectories().Length;
-                    int files = dirInfo.GetFiles().Length;
-                    if (dirs > 0 || files > 0)
-                        throw new Exception($"Directory [{FullName}] is not empty.");
+                    if (!recurse)
+                    {
+                        int dirs = dirInfo.GetDirectories().Length;
+                        int files = dirInfo.GetFiles().Length;
+                        if (dirs > 0 || files > 0)
+                            throw new Exception($"Directory [{FullName}] is not empty.");
+                    }
+
+                    dirInfo.Delete(recurse);
                 }
 
-                dirInfo.Delete( recurse );
                 if (verbose)
                     Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
             }

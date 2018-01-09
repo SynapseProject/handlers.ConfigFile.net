@@ -30,7 +30,6 @@ public class DeleteFileHandler : HandlerRuntimeBase
         DeleteFileHandlerConfig config = new DeleteFileHandlerConfig();
 
         config.Recurse = true;
-        config.FailIfMissing = true;
         config.Verbose = true;
 
         return config;

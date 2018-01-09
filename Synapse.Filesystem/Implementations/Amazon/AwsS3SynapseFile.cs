@@ -113,7 +113,10 @@ namespace Synapse.Filesystem
             if ( fileName == null || fileName == FullName )
             {
                 S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
-                fileInfo.Delete();
+
+                if (fileInfo.Exists)
+                    fileInfo.Delete();
+
                 if (verbose)
                     Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
             }

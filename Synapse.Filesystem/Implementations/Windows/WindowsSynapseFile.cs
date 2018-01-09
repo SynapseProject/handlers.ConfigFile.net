@@ -89,7 +89,10 @@ namespace Synapse.Filesystem
         {
             if ( fileName == null || fileName == FullName )
             {
-                File.Delete( FullName );
+                FileInfo fileInfo = new FileInfo(FullName);
+                if (fileInfo.Exists)
+                    fileInfo.Delete();
+
                 if (verbose)
                     Logger.Log($"File [{FullName}] Was Deleted.", callbackLabel, callback);
             }

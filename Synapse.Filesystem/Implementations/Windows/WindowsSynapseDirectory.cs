@@ -54,15 +54,17 @@ namespace Synapse.Filesystem
             {
                 DirectoryInfo dirInfo = new DirectoryInfo(FullName);
 
-                if (!recurse)
+                if (dirInfo.Exists)
                 {
-                    int dirs = dirInfo.GetDirectories().Length;
-                    int files = dirInfo.GetFiles().Length;
-                    if (dirs > 0 || files > 0)
-                        throw new Exception($"Directory [{FullName}] is not empty.");
+                    if (!recurse)
+                    {
+                        int dirs = dirInfo.GetDirectories().Length;
+                        int files = dirInfo.GetFiles().Length;
+                        if (dirs > 0 || files > 0)
+                            throw new Exception($"Directory [{FullName}] is not empty.");
+                    }
+                    dirInfo.Delete(recurse);
                 }
-
-                dirInfo.Delete(recurse);
 
                 if (verbose)
                     Logger.Log($"Directory [{FullName}] Was Deleted.", callbackLabel, callback);
