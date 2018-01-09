@@ -28,7 +28,7 @@ namespace Synapse.Filesystem
         public abstract Stream OpenStream(AccessType access, String callbackLabel = null, Action<string, string> callback = null);
         public abstract void CloseStream(String callbackLabel = null, Action<string, string> callback = null);
 
-        public void CopyTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void CopyTo(SynapseFile file, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             try
             {
@@ -49,11 +49,12 @@ namespace Synapse.Filesystem
             catch (Exception e)
             {
                 Logger.Log($"ERROR - {e.Message}", callbackLabel, callback);
-                throw;
+                if (stopOnError)
+                    throw;
             }
         }
 
-        public void MoveTo(SynapseFile file, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void MoveTo(SynapseFile file, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             try
             {
@@ -68,22 +69,23 @@ namespace Synapse.Filesystem
             catch (Exception e)
             {
                 Logger.Log($"ERROR - {e.Message}", callbackLabel, callback);
-                throw;
+                if (stopOnError)
+                    throw;
             }
         }
 
-        public void CopyTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void CopyTo(SynapseDirectory dir, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
             String targetFilePath = dir.PathCombine(dir.FullName, this.Name);
             SynapseFile targetFile = dir.CreateFile(targetFilePath);
-            CopyTo(targetFile, overwrite, false, callbackLabel, callback);
+            CopyTo(targetFile, overwrite, stopOnError, false, callbackLabel, callback);
             if (verbose)
                 Logger.Log($"Copied File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);
         }
 
-        public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void MoveTo(SynapseDirectory dir, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            CopyTo(dir, overwrite, false,callbackLabel, callback);
+            CopyTo(dir, overwrite, stopOnError, false,callbackLabel, callback);
             this.Delete(verbose: false);
             if (verbose)
                 Logger.Log($"Moved File [{this.FullName}] to [{dir.FullName}].", callbackLabel, callback);

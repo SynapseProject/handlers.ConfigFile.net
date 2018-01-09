@@ -25,6 +25,8 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public bool Recurse { get; set; } = true;
         [XmlElement]
+        public bool StopOnError { get; set; } = true;
+        [XmlElement]
         public bool PurgeDestination { get; set; } = false;
         [XmlElement]
         public bool Verbose { get; set; } = true;

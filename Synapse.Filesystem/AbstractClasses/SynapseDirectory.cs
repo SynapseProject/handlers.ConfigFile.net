@@ -25,46 +25,101 @@ namespace Synapse.Filesystem
         public abstract IEnumerable<SynapseFile> GetFiles();
         public abstract String PathCombine(params string[] paths);
 
-        public void CopyTo(SynapseDirectory target, bool recurse = true, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void CopyTo(SynapseDirectory target, bool recurse = true, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            foreach ( SynapseDirectory childDir in GetDirectories() )
+            if (this.Exists())
             {
-                String targetDirName = target.PathCombine(target.FullName, $"{childDir.Name}/");
-                SynapseDirectory targetChild = target.Create(targetDirName);
-                if (recurse)
-                    childDir.CopyTo(targetChild, recurse, overwrite, verbose, callbackLabel, callback);
-            }
+                foreach (SynapseDirectory childDir in GetDirectories())
+                {
+                    try
+                    {
+                        String targetDirName = target.PathCombine(target.FullName, $"{childDir.Name}/");
+                        SynapseDirectory targetChild = target.Create(targetDirName);
+                        if (recurse)
+                            childDir.CopyTo(targetChild, recurse, overwrite, verbose, stopOnError, callbackLabel, callback);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message, callbackLabel, callback);
+                        if (stopOnError)
+                            throw;
+                    }
+                }
 
-            foreach (SynapseFile file in GetFiles())
+                foreach (SynapseFile file in GetFiles())
+                {
+                    try
+                    {
+                        String targetFileName = target.PathCombine(target.FullName, file.Name);
+                        SynapseFile targetFile = target.CreateFile(targetFileName, callbackLabel, callback);
+                        file.CopyTo(targetFile, overwrite, stopOnError, verbose, callbackLabel, callback);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message, callbackLabel, callback);
+                        if (stopOnError)
+                            throw;
+                    }
+                }
+
+                if (verbose)
+                    Logger.Log($"Copied Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
+            }
+            else
             {
-                String targetFileName = target.PathCombine(target.FullName, file.Name);
-                SynapseFile targetFile = target.CreateFile(targetFileName, callbackLabel, callback);
-                file.CopyTo(targetFile, overwrite, verbose, callbackLabel, callback);
+                string message = $"[{this.FullName}] Does Not Exist.";
+                Logger.Log(message, callbackLabel, callback);
+                if (stopOnError)
+                    throw new Exception(message);
             }
-
-            if (verbose)
-                Logger.Log($"Copied Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
-
         }
 
-        public void MoveTo(SynapseDirectory target, bool overwrite = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
+        public void MoveTo(SynapseDirectory target, bool overwrite = true, bool stopOnError = true, bool verbose = true, String callbackLabel = null, Action<string, string> callback = null)
         {
-            foreach ( SynapseDirectory childDir in GetDirectories() )
+            if (this.Exists())
             {
-                SynapseDirectory targetChild = target.Create( childDir.Name );
-                childDir.MoveTo( targetChild, overwrite, verbose, callbackLabel, callback );
-                childDir.Delete(verbose: false);
-            }
+                foreach (SynapseDirectory childDir in GetDirectories())
+                {
+                    try
+                    {
+                        SynapseDirectory targetChild = target.Create(childDir.Name);
+                        childDir.MoveTo(targetChild, overwrite, stopOnError, verbose, callbackLabel, callback);
+                        childDir.Delete(verbose: false);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message, callbackLabel, callback);
+                        if (stopOnError)
+                            throw;
+                    }
+                }
 
-            foreach ( SynapseFile file in GetFiles() )
+                foreach (SynapseFile file in GetFiles())
+                {
+                    try
+                    {
+                        String targetFileName = target.PathCombine(target.FullName, file.Name);
+                        SynapseFile targetFile = file.Create(targetFileName, overwrite);
+                        file.MoveTo(targetFile, stopOnError, overwrite, verbose, callbackLabel, callback);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log(e.Message, callbackLabel, callback);
+                        if (stopOnError)
+                            throw;
+                    }
+                }
+
+                if (verbose)
+                    Logger.Log($"Moved Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
+            }
+            else
             {
-                String targetFileName = target.PathCombine( target.FullName, file.Name );
-                SynapseFile targetFile = file.Create( targetFileName, overwrite );
-                file.MoveTo( targetFile, overwrite, verbose, callbackLabel, callback );
+                string message = $"[{this.FullName}] Does Not Exist.";
+                Logger.Log(message, callbackLabel, callback);
+                if (stopOnError)
+                    throw new Exception(message);
             }
-
-            if (verbose)
-                Logger.Log($"Moved Directory [{this.FullName}] to [{target.FullName}].", callbackLabel, callback);
         }
 
         public bool IsEmpty()

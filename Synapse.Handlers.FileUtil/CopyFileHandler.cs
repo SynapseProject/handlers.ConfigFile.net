@@ -101,9 +101,9 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move Directory To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceDir.CopyTo(destDir, config.Recurse, config.OverwriteExisting, config.Verbose, "Copy", Logger);
+                                                sourceDir.CopyTo(destDir, config.Recurse, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceDir.MoveTo(destDir, config.OverwriteExisting, config.Verbose, "Move", Logger);
+                                                sourceDir.MoveTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Move", Logger);
                                         }
                                         else
                                         {
@@ -119,18 +119,18 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move File To Directory
                                             SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destDir, config.OverwriteExisting, config.Verbose, "Copy", Logger);
+                                                sourceFile.CopyTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destDir, config.OverwriteExisting, config.Verbose, "Move", Logger);
+                                                sourceFile.MoveTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Move", Logger);
                                         }
                                         else
                                         {
                                             // Copy/Move File To File
                                             SynapseFile destFile = Utilities.GetSynapseFile(destination);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destFile, config.OverwriteExisting, config.Verbose, "Copy", Logger);
+                                                sourceFile.CopyTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destFile, config.OverwriteExisting, config.Verbose, "Move", Logger);
+                                                sourceFile.MoveTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Move", Logger);
                                         }
                                     }
                                 }
