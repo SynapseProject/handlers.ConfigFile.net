@@ -99,41 +99,58 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
         if (config.BackupSource)
         {
-            SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
-            SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}");
-            sourceFile.CopyTo(backupFile);
+            try
+            {
+                SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
+                SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}");
+                sourceFile.CopyTo(backupFile);
+            }
+            catch (Exception e)
+            {
+                OnLogMessage("BackupSource", $"Error When Backing Up Source File [{file.Source}].", config.StopOnError ? LogLevel.Error : LogLevel.Warn, e);
+                if (config.StopOnError)
+                    throw;
+            }
         }
 
-        Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
-
-        switch (config.Type)
+        try
         {
-            case ConfigType.KeyValue:
-                Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
-                break;
-            case ConfigType.INI:
-                Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
-                break;
-            case ConfigType.Regex:
-                Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
-                break;
-            case ConfigType.XmlTransform:
-                Munger.XMLTransform(file.Source, file.Destination, settingsFileStream, overwrite);
-                break;
-            case ConfigType.XPath:
-                Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
-                break;
-            default:
-                String message = "Unknown File Type [" + config.Type + "] Received.";
-                OnLogMessage("ProcessFile", message);
-                throw new Exception(message);
+            Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
+
+            switch (config.Type)
+            {
+                case ConfigType.KeyValue:
+                    Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
+                    break;
+                case ConfigType.INI:
+                    Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
+                    break;
+                case ConfigType.Regex:
+                    Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
+                    break;
+                case ConfigType.XmlTransform:
+                    Munger.XMLTransform(file.Source, file.Destination, settingsFileStream, overwrite);
+                    break;
+                case ConfigType.XPath:
+                    Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
+                    break;
+                default:
+                    String message = "Unknown File Type [" + config.Type + "] Received.";
+                    OnLogMessage("ProcessFile", message);
+                    throw new Exception(message);
+            }
+
+            if (String.IsNullOrWhiteSpace(file.Destination))
+                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", config.Type, file.Source));
+            else
+                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
         }
-
-        if (String.IsNullOrWhiteSpace(file.Destination))
-            OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", config.Type, file.Source));
-        else
-            OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
-
+        catch (Exception e)
+        {
+            OnLogMessage(config.Type.ToString(), $"Error Modifying File [{file.Source}].", (config.StopOnError == true) ? LogLevel.Error : LogLevel.Warn, e);
+            if (config.StopOnError)
+                throw;
+        }
     }
 
     private bool Validate()
