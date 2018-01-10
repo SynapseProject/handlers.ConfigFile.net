@@ -18,7 +18,7 @@ namespace Synapse.Handlers.FileUtil
     public class ModifyFileHandlerConfig
     {
         [XmlElement]
-        public ConfigType Type { get; set; }
+        public ConfigType Type { get; set; } = ConfigType.None;
         [XmlElement]
         public bool BackupSource { get; set; } = false;
         [XmlElement]

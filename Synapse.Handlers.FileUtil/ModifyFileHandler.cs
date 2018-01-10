@@ -97,6 +97,10 @@ public class ModifyFileHandler : HandlerRuntimeBase
         if (file.OverwriteExisting.HasValue)
             overwrite = file.OverwriteExisting.Value;
 
+        ConfigType modifyType = config.Type;
+        if (file.Type != ConfigType.None)
+            modifyType = file.Type;
+
         if (config.BackupSource)
         {
             try
@@ -115,9 +119,9 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
         try
         {
-            Stream settingsFileStream = GetSettingsFileStream(config.Type, file.SettingsFile, startInfo.Crypto);
+            Stream settingsFileStream = GetSettingsFileStream(modifyType, file.SettingsFile, startInfo.Crypto);
 
-            switch (config.Type)
+            switch (modifyType)
             {
                 case ConfigType.KeyValue:
                     Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
@@ -135,15 +139,15 @@ public class ModifyFileHandler : HandlerRuntimeBase
                     Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
                     break;
                 default:
-                    String message = "Unknown File Type [" + config.Type + "] Received.";
+                    String message = "Unknown File Type [" + modifyType + "] Received.";
                     OnLogMessage("ProcessFile", message);
                     throw new Exception(message);
             }
 
             if (String.IsNullOrWhiteSpace(file.Destination))
-                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", config.Type, file.Source));
+                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", modifyType, file.Source));
             else
-                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}] to [{2}].", config.Type, file.Source, file.Destination));
+                OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}] to [{2}].", modifyType, file.Source, file.Destination));
         }
         catch (Exception e)
         {

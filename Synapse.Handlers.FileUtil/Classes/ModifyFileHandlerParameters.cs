@@ -26,6 +26,8 @@ namespace Synapse.Handlers.FileUtil
         [XmlElement]
         public String Destination { get; set; }
         [XmlElement]
+        public ConfigType Type { get; set; } = ConfigType.None;
+        [XmlElement]
         public SettingsFileType SettingsFile { get; set; }
         [XmlElement]
         public bool? CreateSettingIfNotFound { get; set; } = null;

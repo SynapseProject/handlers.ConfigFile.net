@@ -6,6 +6,7 @@ namespace Synapse.Handlers.FileUtil
 {
     public enum ConfigType
     {
+        None,
         Regex,
         XmlTransform,
         XPath,
