@@ -14,11 +14,16 @@ namespace Synapse.Filesystem
     {
         public static void Main(string[] args)
         {
-            AwsClient.Initialize(RegionEndpoint.EUWest1);
+//            AwsClient.Initialize(RegionEndpoint.EUWest1);
+            AwsClient.Initialize();
 
-            AwsS3SynapseFile file = new AwsS3SynapseFile(@"s3://wagug0-test/Destination/GuyWasHere.txt");
-            file.Create(null, false, "Test", ConsoleWriter);
-            file.CloseStream();
+            AwsS3SynapseDirectory dir = new AwsS3SynapseDirectory(@"s3://mybucket/Source/");
+
+            foreach (SynapseDirectory d in dir.GetDirectories())
+                Console.WriteLine(d.FullName);
+
+            foreach (SynapseFile f in dir.GetFiles())
+                Console.WriteLine(f.FullName);
 
             Console.WriteLine( "Press <ENTER> To Continue..." );
             Console.ReadLine();
