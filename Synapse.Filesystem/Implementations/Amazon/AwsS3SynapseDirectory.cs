@@ -167,7 +167,9 @@ namespace Synapse.Filesystem
             foreach ( S3Object obj in objects )
                 if ( obj.Key.EndsWith( @"/" ) )
                 {
-                    String dirName = obj.Key.Replace( ObjectKey, "" );
+                    String dirName = obj.Key;
+                    if (!String.IsNullOrWhiteSpace(ObjectKey))
+                        dirName = obj.Key.Replace( ObjectKey, "" );
                     // Exclude Sub-Directories
                     if ( dirName.Split( new char[] { '/' } ).Length == 2 )
                         dirs.Add( new AwsS3SynapseDirectory( $"s3://{obj.BucketName}/{obj.Key}" ) );
@@ -184,7 +186,9 @@ namespace Synapse.Filesystem
             foreach ( S3Object obj in objects )
                 if ( !obj.Key.EndsWith( @"/" ) )
                 {
-                    String fileName = obj.Key.Replace( ObjectKey, "" );
+                    String fileName = obj.Key;
+                    if (!String.IsNullOrWhiteSpace(ObjectKey))
+                        fileName = obj.Key.Replace( ObjectKey, "" );
                     // Exclude Sub-Directories
                     if ( fileName.Split( new char[] { '/' } ).Length == 1 )
                         files.Add( new AwsS3SynapseFile( $"s3://{obj.BucketName}/{obj.Key}" ) );

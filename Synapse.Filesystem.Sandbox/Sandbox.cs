@@ -14,10 +14,8 @@ namespace Synapse.Filesystem
     {
         public static void Main(string[] args)
         {
-//            AwsClient.Initialize(RegionEndpoint.EUWest1);
-            AwsClient.Initialize();
-
-            AwsS3SynapseDirectory dir = new AwsS3SynapseDirectory(@"s3://mybucket/Source/");
+            AwsClient.Initialize(RegionEndpoint.USEast1);
+            AwsS3SynapseDirectory dir = new AwsS3SynapseDirectory(@"s3://wagug0-test/");
 
             foreach (SynapseDirectory d in dir.GetDirectories())
                 Console.WriteLine(d.FullName);
