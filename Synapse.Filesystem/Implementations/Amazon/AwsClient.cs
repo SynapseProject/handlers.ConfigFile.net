@@ -11,15 +11,21 @@ using Amazon.Runtime.CredentialManagement;
 
 namespace Synapse.Filesystem
 {
-    public static class AwsClient
+    public class AwsClient
     {
-        public static AmazonS3Client Client { get; internal set; }
+        internal AmazonS3Client Client { get; set; }
+
+        public AwsClient(RegionEndpoint endpoint = null) { Initialize(endpoint); }
+        public AwsClient(AWSCredentials creds, RegionEndpoint endpoint = null) { Initialize(creds, endpoint); }
+        public AwsClient(string accessKey, string secretAccessKey, RegionEndpoint endpoint = null) { Initialize(accessKey, secretAccessKey, endpoint); }
+        public AwsClient(string accessKey, string secretAccessKey, string sessionToken, RegionEndpoint endpoint = null) { Initialize(accessKey, secretAccessKey, sessionToken, endpoint); }
+        public AwsClient(string profileName, RegionEndpoint endpoint = null) { Initialize(profileName, endpoint); }
 
         /// <summary>
         /// Initialize S3Client using implicit Credentials from config or profile.
         /// </summary>
         /// <param name="endpoint">The region to connect to.</param>
-        public static void Initialize(RegionEndpoint endpoint = null)
+        private void Initialize(RegionEndpoint endpoint = null)
         {
             if (Client != null)
                 Client = null;
@@ -35,7 +41,7 @@ namespace Synapse.Filesystem
         /// </summary>
         /// <param name="creds">The AWSCredentails object.</param>
         /// <param name="endpoint">The region to connect to.</param>
-        public static void Initialize(AWSCredentials creds, RegionEndpoint endpoint = null)
+        private void Initialize(AWSCredentials creds, RegionEndpoint endpoint = null)
         {
             if (Client != null)
                 Client = null;
@@ -52,19 +58,19 @@ namespace Synapse.Filesystem
         /// <param name="accessKey">AWS Access Key Id</param>
         /// <param name="secretAccessKey">AWS Secret Access Key</param>
         /// <param name="endpoint">The region to connect to.</param>
-        public static void Initialize(string accessKey, string secretAccessKey, RegionEndpoint endpoint = null)
+        private void Initialize(string accessKey, string secretAccessKey, RegionEndpoint endpoint = null)
         {
             BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretAccessKey);
             Initialize(creds, endpoint);
         }
 
-        public static void Initialize(string accessKey, string secretAccessKey, string sessionToken, RegionEndpoint endpoint = null)
+        private void Initialize(string accessKey, string secretAccessKey, string sessionToken, RegionEndpoint endpoint = null)
         {
             SessionAWSCredentials sessionCreds = new SessionAWSCredentials(accessKey, secretAccessKey, sessionToken);
             Initialize(sessionCreds, endpoint);
         }
 
-        public static void Initialize(string profileName, RegionEndpoint endpoint = null)
+        private void Initialize(string profileName, RegionEndpoint endpoint = null)
         {
             CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
             AWSCredentials creds = null;
@@ -74,7 +80,7 @@ namespace Synapse.Filesystem
                 throw new Exception($"Unable To Retrieve Credentails For Profile [{profileName}]");
         }
 
-        public static void Close()
+        public void Close()
         {
             Client = null;
         }

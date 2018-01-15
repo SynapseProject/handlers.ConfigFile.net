@@ -16,10 +16,12 @@ namespace Synapse.Filesystem
 {
     public class AwsS3SynapseFile : SynapseFile
     {
+         
         public static string UrlPattern = @"^(s3:\/\/)(.*?)\/(.*)$";        // Gets Root, Bucket Name and Object Key
 
         private System.IO.Stream fileStream;
         private bool isStreamOpen = false;
+        private AwsClient _client = null;
 
         public override string Name { get { return FullName.Substring( FullName.LastIndexOf( @"/" ) + 1 ); } }
         public override string FullName {
@@ -41,9 +43,10 @@ namespace Synapse.Filesystem
         public string BucketName { get; internal set; }
         public string ObjectKey { get; internal set; }
 
-        public AwsS3SynapseFile() { }
-        public AwsS3SynapseFile(string fullName)
+        public AwsS3SynapseFile(AwsClient client) { _client = client; }
+        public AwsS3SynapseFile(AwsClient client, string fullName)
         {
+            _client = client;
             FullName = fullName;
         }
 
@@ -52,7 +55,10 @@ namespace Synapse.Filesystem
         {
             if ( !isStreamOpen )
             {
-                S3FileInfo file = new S3FileInfo( AwsClient.Client, BucketName, ObjectKey );
+                if (_client == null)
+                    throw new Exception($"AWSClient Not Set.");
+
+                S3FileInfo file = new S3FileInfo( _client.Client, BucketName, ObjectKey );
                 if ( access == AccessType.Read )
                     fileStream = file.OpenRead();
                 else if ( access == AccessType.Write )
@@ -82,7 +88,10 @@ namespace Synapse.Filesystem
                     if (this.Exists() && !overwrite)
                         throw new Exception($"File [{this.FullName}] Already Exists.");
 
-                    S3FileInfo fileInfo = new S3FileInfo(AwsClient.Client, BucketName, ObjectKey);
+                    if (_client == null)
+                        throw new Exception($"AWSClient Not Set.");
+
+                    S3FileInfo fileInfo = new S3FileInfo(_client.Client, BucketName, ObjectKey);
                     fileStream = fileInfo.Create();
                     isStreamOpen = true;            // Opens Stream As "Write" By Default
                     callback?.Invoke(callbackLabel, $"File [{FullName}] Was Created.");
@@ -97,7 +106,7 @@ namespace Synapse.Filesystem
             }
             else
             {
-                AwsS3SynapseFile file = new AwsS3SynapseFile( fileName );
+                AwsS3SynapseFile file = new AwsS3SynapseFile( _client, fileName );
                 file.Create( null, overwrite );
                 return file;
             }
@@ -105,7 +114,7 @@ namespace Synapse.Filesystem
 
         public override SynapseDirectory CreateDirectory(string dirName, String callbackLabel = null, Action<string, string> callback = null)
         {
-            return new AwsS3SynapseDirectory(dirName);
+            return new AwsS3SynapseDirectory(_client, dirName);
         }
 
         public override void Delete(string fileName = null, bool stopOnError = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
@@ -114,7 +123,10 @@ namespace Synapse.Filesystem
             {
                 try
                 {
-                    S3FileInfo fileInfo = new S3FileInfo(AwsClient.Client, BucketName, ObjectKey);
+                    if (_client == null)
+                        throw new Exception($"AWSClient Not Set.");
+
+                    S3FileInfo fileInfo = new S3FileInfo(_client.Client, BucketName, ObjectKey);
 
                     if (fileInfo.Exists)
                         fileInfo.Delete();
@@ -131,7 +143,7 @@ namespace Synapse.Filesystem
             }
             else
             {
-                AwsS3SynapseFile file = new AwsS3SynapseFile( fileName );
+                AwsS3SynapseFile file = new AwsS3SynapseFile(_client,  fileName );
                 file.Delete(stopOnError: stopOnError, verbose: verbose);
             }
         }
@@ -140,14 +152,17 @@ namespace Synapse.Filesystem
         {
             if (fileName == null || fileName == FullName)
             {
+                if (_client == null)
+                    throw new Exception($"AWSClient Not Set.");
+
                 String key = ObjectKey;
                 key = key.Replace('/', '\\');
-                S3FileInfo fileInfo = new S3FileInfo( AwsClient.Client, BucketName, key );
+                S3FileInfo fileInfo = new S3FileInfo( _client.Client, BucketName, key );
                 return fileInfo.Exists;
             }
             else
             {
-                AwsS3SynapseFile file = new AwsS3SynapseFile( fileName );
+                AwsS3SynapseFile file = new AwsS3SynapseFile( _client, fileName );
                 return file.Exists();
             }
         }

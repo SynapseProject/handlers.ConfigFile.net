@@ -95,8 +95,9 @@ namespace Synapse.Handlers.FileUtil
             return decodedStr;
         }
 
-        public static void InitAwsClient(AwsConfig aws)
+        public static AwsClient InitAwsClient(AwsConfig aws)
         {
+            AwsClient client = null;
             if (aws != null)
             {
                 bool hasAccessKey = (!String.IsNullOrWhiteSpace(aws.AccessKey));
@@ -106,15 +107,16 @@ namespace Synapse.Handlers.FileUtil
                 if (hasAccessKey && hasSecretKey)
                 {
                     if (hasRegion)
-                        AwsClient.Initialize(aws.AccessKey, aws.SecretKey, aws.AwsRegion);
+                        client = new AwsClient(aws.AccessKey, aws.SecretKey, aws.AwsRegion);
                     else
-                        AwsClient.Initialize(aws.AccessKey, aws.SecretKey);
+                        client = new AwsClient(aws.AccessKey, aws.SecretKey);
                 }
                 else if (hasRegion)
-                    AwsClient.Initialize(aws.AwsRegion);
+                    client = new AwsClient(aws.AwsRegion);
                 else
-                    AwsClient.Initialize();     // Pull All Details From Environemnt Variables / Credentails Files
+                    client = new AwsClient();     // Pull All Details From Environemnt Variables / Credentails Files
             }
+            return client;
         }
 
 

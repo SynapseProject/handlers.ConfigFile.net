@@ -58,6 +58,7 @@
     <Compile Include="AbstractClasses\SynapseFile.cs" />
     <Compile Include="Classes\Logger.cs" />
     <Compile Include="Classes\Enums.cs" />
+    <Compile Include="Classes\SynapseClients.cs" />
     <Compile Include="Classes\Utilities.cs" />
     <Compile Include="Implementations\Amazon\AwsClient.cs" />
     <Compile Include="Implementations\Amazon\AwsS3SynapseDirectory.cs" />

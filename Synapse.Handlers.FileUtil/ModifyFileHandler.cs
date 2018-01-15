@@ -17,11 +17,12 @@ public class ModifyFileHandler : HandlerRuntimeBase
 {
     ModifyFileHandlerConfig config = null;
     ModifyFileHandlerParameters parameters = null;
+    SynapseClients clients = new SynapseClients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<ModifyFileHandlerConfig>(configStr);
-        HandlerUtils.InitAwsClient(config.Aws);
+        clients.aws = HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 
@@ -105,8 +106,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
         {
             try
             {
-                SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source);
-                SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}");
+                SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source, clients);
+                SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}", clients);
                 sourceFile.CopyTo(backupFile);
             }
             catch (Exception e)
@@ -124,19 +125,19 @@ public class ModifyFileHandler : HandlerRuntimeBase
             switch (modifyType)
             {
                 case ConfigType.KeyValue:
-                    Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
+                    Munger.KeyValue(PropertyFile.Type.Java, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite, clients);
                     break;
                 case ConfigType.INI:
-                    Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite);
+                    Munger.KeyValue(PropertyFile.Type.Ini, file.Source, file.Destination, settingsFileStream, file.SettingsKvp, createIfMissing, overwrite, clients);
                     break;
                 case ConfigType.Regex:
-                    Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
+                    Munger.RegexMatch(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite, clients);
                     break;
                 case ConfigType.XmlTransform:
-                    Munger.XMLTransform(file.Source, file.Destination, settingsFileStream, overwrite);
+                    Munger.XMLTransform(file.Source, file.Destination, settingsFileStream, overwrite, clients);
                     break;
                 case ConfigType.XPath:
-                    Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite);
+                    Munger.XPath(file.Source, file.Destination, settingsFileStream, file.SettingsKvp, overwrite, clients);
                     break;
                 default:
                     String message = "Unknown File Type [" + modifyType + "] Received.";
@@ -195,7 +196,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
             stream = null;
         else
         {
-            SynapseFile settingsFile = Utilities.GetSynapseFile(settings.Name);
+            SynapseFile settingsFile = Utilities.GetSynapseFile(settings.Name, clients);
             stream = settingsFile.OpenStream(AccessType.Read);
             if (settings.HasEncryptedValues)
             {

@@ -14,12 +14,12 @@ namespace Synapse.Handlers.FileUtil
 {
     class Munger
     {
-        static public void XMLTransform(String sourceFile, String destinationFile, String transformFile, bool overwrite = true)
+        static public void XMLTransform(String sourceFile, String destinationFile, String transformFile, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
-            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile, clients);
 
             if (!overwrite)
             {
@@ -36,7 +36,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -56,11 +56,11 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformStream, bool overwrite = true)
+        static public void XMLTransform(String sourceFile, String destinationFile, io.Stream transformStream, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
 
             if (!overwrite)
             {
@@ -76,7 +76,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -115,12 +115,12 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false, bool overwrite = true)
+        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
-            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile, clients);
 
             if (!overwrite)
             {
@@ -137,7 +137,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -157,11 +157,11 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false, bool overwrite = true)
+        static public void KeyValue(PropertyFile.Type type, String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool createIfNotFound = false, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
 
             if (!overwrite)
             {
@@ -177,7 +177,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -278,12 +278,12 @@ namespace Synapse.Handlers.FileUtil
                 props.Save(destinationStream);
         }
 
-        static public void XPath(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool overwrite = true)
+        static public void XPath(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
-            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile, clients);
 
             if (!overwrite)
             {
@@ -300,7 +300,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -320,11 +320,11 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        static public void XPath(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool overwrite = true)
+        static public void XPath(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
 
             if (!overwrite)
             {
@@ -340,7 +340,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -427,12 +427,12 @@ namespace Synapse.Handlers.FileUtil
                 doc.Save(destinationStream);
         }
 
-        static public void RegexMatch(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool overwrite = true)
+        static public void RegexMatch(String sourceFile, String destinationFile, String transformFile, List<KeyValuePair<String, String>> settings, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
-            SynapseFile transform = Utilities.GetSynapseFile(transformFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
+            SynapseFile transform = Utilities.GetSynapseFile(transformFile, clients);
 
             if (!overwrite)
             {
@@ -449,7 +449,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;
@@ -469,11 +469,11 @@ namespace Synapse.Handlers.FileUtil
             }
         }
 
-        static public void RegexMatch(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool overwrite = true)
+        static public void RegexMatch(String sourceFile, String destinationFile, io.Stream transformStream, List<KeyValuePair<String, String>> settings, bool overwrite = true, SynapseClients clients = null)
         {
             bool tempFileUsed = false;
-            SynapseFile source = Utilities.GetSynapseFile(sourceFile);
-            SynapseFile destination = Utilities.GetSynapseFile(destinationFile);
+            SynapseFile source = Utilities.GetSynapseFile(sourceFile, clients);
+            SynapseFile destination = Utilities.GetSynapseFile(destinationFile, clients);
 
             if (!overwrite)
             {
@@ -489,7 +489,7 @@ namespace Synapse.Handlers.FileUtil
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
-                destination = Utilities.GetSynapseFile(tempFileName);
+                destination = Utilities.GetSynapseFile(tempFileName, clients);
                 destination.Create(null, overwrite);
                 destinationStream = destination?.OpenStream(AccessType.Write);
                 tempFileUsed = true;

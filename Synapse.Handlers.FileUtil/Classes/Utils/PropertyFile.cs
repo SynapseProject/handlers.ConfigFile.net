@@ -22,6 +22,7 @@ namespace Synapse.Handlers.FileUtil
         private Dictionary<String, int> _index = new Dictionary<string, int>();
         private Dictionary<String, int> _sections = new Dictionary<string, int>();
         private String _currentSection = null;
+        private SynapseClients _clients = null;
 
         public PropertyFile() {}
 
@@ -30,9 +31,10 @@ namespace Synapse.Handlers.FileUtil
             this.FileType = fileType;
         }
 
-        public PropertyFile(Type fileType, String file)
+        public PropertyFile(Type fileType, String file, SynapseClients clients = null)
         {
             this.FileType = fileType;
+            _clients = clients;
             Load(file);
         }
 
@@ -44,12 +46,12 @@ namespace Synapse.Handlers.FileUtil
 
         public void Load(String filename)
         { 
-            SynapseFile file = Utilities.GetSynapseFile(filename);
+            SynapseFile file = Utilities.GetSynapseFile(filename, _clients);
             io.Stream stream = file.OpenStream(AccessType.Read);
             Load(stream);
         }
 
-        public void Load( io.Stream stream)
+        public void Load( io.Stream stream )
         {
             io.StreamReader reader = new io.StreamReader(stream);
             //            foreach (String line in lines)
@@ -80,7 +82,7 @@ namespace Synapse.Handlers.FileUtil
 
         public void Save(String filename)
         {
-            SynapseFile file = Utilities.GetSynapseFile(filename);
+            SynapseFile file = Utilities.GetSynapseFile(filename, _clients);
             io.Stream stream = file.OpenStream(AccessType.Write);
             Save(stream);
         }

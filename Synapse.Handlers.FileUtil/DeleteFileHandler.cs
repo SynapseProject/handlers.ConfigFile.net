@@ -17,11 +17,12 @@ public class DeleteFileHandler : HandlerRuntimeBase
 {
     DeleteFileHandlerConfig config = null;
     DeleteFileHandlerParameters parameters = null;
+    SynapseClients clients = new SynapseClients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<DeleteFileHandlerConfig>(configStr);
-        HandlerUtils.InitAwsClient(config.Aws);
+        clients.aws = HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 
@@ -73,12 +74,12 @@ public class DeleteFileHandler : HandlerRuntimeBase
                     {
                         if (Utilities.IsDirectory(target))
                         {
-                            SynapseDirectory dir = Utilities.GetSynapseDirectory(target);
+                            SynapseDirectory dir = Utilities.GetSynapseDirectory(target, clients);
                             dir.Delete(null, config.Recurse, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {
-                            SynapseFile file = Utilities.GetSynapseFile(target);
+                            SynapseFile file = Utilities.GetSynapseFile(target, clients);
                             file.Delete(null, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                     }

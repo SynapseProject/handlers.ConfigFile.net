@@ -15,6 +15,8 @@ namespace Synapse.Filesystem
         public static string UrlPattern = @"^(s3:\/\/)(.*?)\/(.*)$";        // Gets Root, Bucket Name and Object Key
         public static string NamePattern = @"^(s3:\/\/.*\/)(.*?)\/$";       // Gets Parent Name and Name
 
+        private AwsClient _client = null;
+
         private string _fullName;
         public string BucketName { get; internal set; }
         public string ObjectKey { get; internal set; }
@@ -66,9 +68,10 @@ namespace Synapse.Filesystem
         }
 
 
-        public AwsS3SynapseDirectory() { }
-        public AwsS3SynapseDirectory(string fullName)
+        public AwsS3SynapseDirectory(AwsClient client) { _client = client; }
+        public AwsS3SynapseDirectory(AwsClient client, string fullName)
         {
+            _client = client;
             FullName = fullName;
         }
 
@@ -78,20 +81,23 @@ namespace Synapse.Filesystem
         {
             if ( childDirName == null || childDirName == FullName )
             {
+                if (_client == null)
+                    throw new Exception($"AWSClient Not Set.");
+
                 if (this.Exists() && failIfExists)
                     throw new Exception($"Directory [{FullName}] Already Exists.");
 
                 String key = ObjectKey;
                 if ( key.EndsWith( "/" ) )
                     key = key.Substring( 0, key.Length - 1 );
-                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, key);
+                S3DirectoryInfo dirInfo = new S3DirectoryInfo( _client.Client, BucketName, key);
                 dirInfo.Create();
                 callback?.Invoke( callbackLabel, $"Directory [{FullName}] Was Created." );
                 return this;
             }
             else
             {
-                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( childDirName );
+                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( _client, childDirName );
                 newDir.Create(null, failIfExists, callbackLabel, callback);
                 return newDir;
             }
@@ -99,7 +105,7 @@ namespace Synapse.Filesystem
 
         public override SynapseFile CreateFile(string fullName, String callbackLabel = null, Action<string, string> callback = null)
         {
-            return new AwsS3SynapseFile(fullName);
+            return new AwsS3SynapseFile(_client, fullName);
         }
 
         public override void Delete(string dirName = null, bool recurse = true, bool stopOnError = true, bool verbose = true, string callbackLabel = null, Action<string, string> callback = null)
@@ -108,11 +114,14 @@ namespace Synapse.Filesystem
             {
                 try
                 {
+                    if (_client == null)
+                        throw new Exception($"AWSClient Not Set.");
+
                     String key = ObjectKey;
                     key = key.Replace('/', '\\');
                     if (key.EndsWith("\\"))
                         key = key.Substring(0, key.Length - 1);
-                    S3DirectoryInfo dirInfo = new S3DirectoryInfo(AwsClient.Client, BucketName, key);
+                    S3DirectoryInfo dirInfo = new S3DirectoryInfo(_client.Client, BucketName, key);
 
                     if (dirInfo.Exists)
                     {
@@ -139,7 +148,7 @@ namespace Synapse.Filesystem
             }
             else
             {
-                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( dirName );
+                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( _client, dirName );
                 newDir.Delete(recurse: recurse);
             }
         }
@@ -148,13 +157,16 @@ namespace Synapse.Filesystem
         {
             if ( dirName == null || dirName == FullName )
             {
+                if (_client == null)
+                    throw new Exception($"AWSClient Not Set.");
+
                 string dirInfoKey = ObjectKey.Replace('/', '\\');
-                S3DirectoryInfo dirInfo = new S3DirectoryInfo( AwsClient.Client, BucketName, dirInfoKey);
+                S3DirectoryInfo dirInfo = new S3DirectoryInfo( _client.Client, BucketName, dirInfoKey);
                 return dirInfo.Exists;
             }
             else
             {
-                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( dirName );
+                AwsS3SynapseDirectory newDir = new AwsS3SynapseDirectory( _client, dirName );
                 return newDir.Exists();
             }
         }
@@ -164,6 +176,9 @@ namespace Synapse.Filesystem
             List<SynapseDirectory> dirs = new List<SynapseDirectory>();
             List<S3Object> objects = GetObjects( BucketName, ObjectKey );
 
+            if (_client == null)
+                throw new Exception($"AWSClient Not Set.");
+
             foreach ( S3Object obj in objects )
                 if ( obj.Key.EndsWith( @"/" ) )
                 {
@@ -172,7 +187,7 @@ namespace Synapse.Filesystem
                         dirName = obj.Key.Replace( ObjectKey, "" );
                     // Exclude Sub-Directories
                     if ( dirName.Split( new char[] { '/' } ).Length == 2 )
-                        dirs.Add( new AwsS3SynapseDirectory( $"s3://{obj.BucketName}/{obj.Key}" ) );
+                        dirs.Add( new AwsS3SynapseDirectory( _client, $"s3://{obj.BucketName}/{obj.Key}" ) );
                 }
 
             return dirs;
@@ -183,6 +198,9 @@ namespace Synapse.Filesystem
             List<SynapseFile> files = new List<SynapseFile>();
             List<S3Object> objects = GetObjects( BucketName, ObjectKey );
 
+            if (_client == null)
+                throw new Exception($"AWSClient Not Set.");
+
             foreach ( S3Object obj in objects )
                 if ( !obj.Key.EndsWith( @"/" ) )
                 {
@@ -191,7 +209,7 @@ namespace Synapse.Filesystem
                         fileName = obj.Key.Replace( ObjectKey, "" );
                     // Exclude Sub-Directories
                     if ( fileName.Split( new char[] { '/' } ).Length == 1 )
-                        files.Add( new AwsS3SynapseFile( $"s3://{obj.BucketName}/{obj.Key}" ) );
+                        files.Add( new AwsS3SynapseFile( _client, $"s3://{obj.BucketName}/{obj.Key}" ) );
                 }
 
             return files;
@@ -223,7 +241,10 @@ namespace Synapse.Filesystem
             if ( prefix != null )
                 request.Prefix = prefix;
 
-            ListObjectsV2Response response = AwsClient.Client.ListObjectsV2( request );
+            if (_client == null)
+                throw new Exception($"AWSClient Not Set.");
+
+            ListObjectsV2Response response = _client.Client.ListObjectsV2( request );
             return response.S3Objects;
         }
     }

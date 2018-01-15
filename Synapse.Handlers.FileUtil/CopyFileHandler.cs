@@ -18,11 +18,12 @@ public class CopyFileHandler : HandlerRuntimeBase
     CopyFileHandlerConfig config = null;
     CopyFileHandlerParameters parameters = null;
     int cheapSequence = 0;
+    SynapseClients clients = new SynapseClients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
         config = HandlerUtils.Deserialize<CopyFileHandlerConfig>(configStr);
-        HandlerUtils.InitAwsClient(config.Aws);
+        clients.aws = HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
 
@@ -87,7 +88,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                             {
                                 if (Utilities.IsDirectory(destination) && config.PurgeDestination)
                                 {
-                                    SynapseDirectory clearDir = Utilities.GetSynapseDirectory(destination);
+                                    SynapseDirectory clearDir = Utilities.GetSynapseDirectory(destination, clients);
                                     clearDir.Clear(null, config.StopOnError, config.Verbose, "Purge", Logger);
                                     OnLogMessage("CopyFileHandler", $"Directory [{destination}] Was Purged.");
                                 }
@@ -96,11 +97,11 @@ public class CopyFileHandler : HandlerRuntimeBase
                                 {
                                     if (Utilities.IsDirectory(source))
                                     {
-                                        SynapseDirectory sourceDir = Utilities.GetSynapseDirectory(source);
+                                        SynapseDirectory sourceDir = Utilities.GetSynapseDirectory(source, clients);
                                         if (Utilities.IsDirectory(destination))
                                         {
                                             // Copy/Move Directory To Directory
-                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
+                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceDir.CopyTo(destDir, config.Recurse, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
@@ -114,11 +115,11 @@ public class CopyFileHandler : HandlerRuntimeBase
                                     }
                                     else
                                     {
-                                        SynapseFile sourceFile = Utilities.GetSynapseFile(source);
+                                        SynapseFile sourceFile = Utilities.GetSynapseFile(source, clients);
                                         if (Utilities.IsDirectory(destination))
                                         {
                                             // Copy/Move File To Directory
-                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination);
+                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceFile.CopyTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
@@ -127,7 +128,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                                         else
                                         {
                                             // Copy/Move File To File
-                                            SynapseFile destFile = Utilities.GetSynapseFile(destination);
+                                            SynapseFile destFile = Utilities.GetSynapseFile(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceFile.CopyTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else

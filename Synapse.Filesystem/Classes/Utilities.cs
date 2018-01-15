@@ -55,7 +55,7 @@ namespace Synapse.Filesystem
             return !IsDirectory(url);
         }
 
-        public static SynapseFile GetSynapseFile(string url)
+        public static SynapseFile GetSynapseFile(string url, SynapseClients clients = null)
         {
             SynapseFile file = null;
             UrlType type = GetUrlType(url);
@@ -68,14 +68,14 @@ namespace Synapse.Filesystem
                     file = new WindowsSynapseFile(url);
                     break;
                 case UrlType.AwsS3File:
-                    file = new AwsS3SynapseFile(url);
+                    file = new AwsS3SynapseFile(clients?.aws, url);
                     break;
             }
 
             return file;
         }
 
-        public static SynapseDirectory GetSynapseDirectory(string url)
+        public static SynapseDirectory GetSynapseDirectory(string url, SynapseClients clients = null)
         {
             SynapseDirectory dir = null;
             UrlType type = GetUrlType(url);
@@ -88,7 +88,7 @@ namespace Synapse.Filesystem
                     dir = new WindowsSynapseDirectory(url);
                     break;
                 case UrlType.AwsS3Directory:
-                    dir = new AwsS3SynapseDirectory(url);
+                    dir = new AwsS3SynapseDirectory(clients?.aws, url);
                     break;
                 default:
                     throw new Exception($"Url [{url}] Is Not A Known Directory Type.");
