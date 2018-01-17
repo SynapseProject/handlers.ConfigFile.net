@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Alphaleonis.Win32.Filesystem;
+using Zephyr.Filesystem;
 
-using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 using Synapse.Core;
@@ -18,7 +18,7 @@ public class CopyFileHandler : HandlerRuntimeBase
     CopyFileHandlerConfig config = null;
     CopyFileHandlerParameters parameters = null;
     int cheapSequence = 0;
-    SynapseClients clients = new SynapseClients();
+    Clients clients = new Clients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
@@ -88,7 +88,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                             {
                                 if (Utilities.IsDirectory(destination) && config.PurgeDestination)
                                 {
-                                    SynapseDirectory clearDir = Utilities.GetSynapseDirectory(destination, clients);
+                                    ZephyrDirectory clearDir = Utilities.GetZephyrDirectory(destination, clients);
                                     clearDir.Clear(null, config.StopOnError, config.Verbose, "Purge", Logger);
                                     OnLogMessage("CopyFileHandler", $"Directory [{destination}] Was Purged.");
                                 }
@@ -97,11 +97,11 @@ public class CopyFileHandler : HandlerRuntimeBase
                                 {
                                     if (Utilities.IsDirectory(source))
                                     {
-                                        SynapseDirectory sourceDir = Utilities.GetSynapseDirectory(source, clients);
+                                        ZephyrDirectory sourceDir = Utilities.GetZephyrDirectory(source, clients);
                                         if (Utilities.IsDirectory(destination))
                                         {
                                             // Copy/Move Directory To Directory
-                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination, clients);
+                                            ZephyrDirectory destDir = Utilities.GetZephyrDirectory(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceDir.CopyTo(destDir, config.Recurse, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
@@ -115,11 +115,11 @@ public class CopyFileHandler : HandlerRuntimeBase
                                     }
                                     else
                                     {
-                                        SynapseFile sourceFile = Utilities.GetSynapseFile(source, clients);
+                                        ZephyrFile sourceFile = Utilities.GetZephyrFile(source, clients);
                                         if (Utilities.IsDirectory(destination))
                                         {
                                             // Copy/Move File To Directory
-                                            SynapseDirectory destDir = Utilities.GetSynapseDirectory(destination, clients);
+                                            ZephyrDirectory destDir = Utilities.GetZephyrDirectory(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceFile.CopyTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
@@ -128,7 +128,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                                         else
                                         {
                                             // Copy/Move File To File
-                                            SynapseFile destFile = Utilities.GetSynapseFile(destination, clients);
+                                            ZephyrFile destFile = Utilities.GetZephyrFile(destination, clients);
                                             if (config.Action == FileAction.Copy)
                                                 sourceFile.CopyTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else

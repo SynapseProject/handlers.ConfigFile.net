@@ -37,6 +37,9 @@
     <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
       <HintPath>..\packages\AWSSDK.Core.3.3.21.1\lib\net45\AWSSDK.Core.dll</HintPath>
     </Reference>
+    <Reference Include="AWSSDK.S3">
+      <HintPath>..\..\zephyr.FileSystem.net\Zephyr.Filesystem\bin\Debug\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
       <Private>True</Private>
@@ -56,6 +59,9 @@
     <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
       <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Zephyr.Filesystem">
+      <HintPath>..\..\zephyr.FileSystem.net\Zephyr.Filesystem\bin\Debug\Zephyr.Filesystem.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -83,12 +89,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Synapse.Filesystem\Synapse.Filesystem.csproj">
-      <Project>{821fde49-adcf-4ce8-816c-3e116c8f593d}</Project>
-      <Name>Synapse.Filesystem</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Alphaleonis.Win32.Filesystem;
+using Zephyr.Filesystem;
 
 using Synapse.Core;
-using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 
@@ -17,7 +17,7 @@ public class DeleteFileHandler : HandlerRuntimeBase
 {
     DeleteFileHandlerConfig config = null;
     DeleteFileHandlerParameters parameters = null;
-    SynapseClients clients = new SynapseClients();
+    Clients clients = new Clients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
@@ -74,12 +74,12 @@ public class DeleteFileHandler : HandlerRuntimeBase
                     {
                         if (Utilities.IsDirectory(target))
                         {
-                            SynapseDirectory dir = Utilities.GetSynapseDirectory(target, clients);
+                            ZephyrDirectory dir = Utilities.GetZephyrDirectory(target, clients);
                             dir.Delete(null, config.Recurse, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {
-                            SynapseFile file = Utilities.GetSynapseFile(target, clients);
+                            ZephyrFile file = Utilities.GetZephyrFile(target, clients);
                             file.Delete(null, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                     }

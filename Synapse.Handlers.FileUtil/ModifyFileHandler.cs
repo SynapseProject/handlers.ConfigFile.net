@@ -8,16 +8,16 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using Zephyr.Filesystem;
 
 using Synapse.Core;
-using Synapse.Filesystem;
 using Synapse.Handlers.FileUtil;
 
 public class ModifyFileHandler : HandlerRuntimeBase
 {
     ModifyFileHandlerConfig config = null;
     ModifyFileHandlerParameters parameters = null;
-    SynapseClients clients = new SynapseClients();
+    Clients clients = new Clients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
@@ -106,8 +106,8 @@ public class ModifyFileHandler : HandlerRuntimeBase
         {
             try
             {
-                SynapseFile sourceFile = Utilities.GetSynapseFile(file.Source, clients);
-                SynapseFile backupFile = Utilities.GetSynapseFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}", clients);
+                ZephyrFile sourceFile = Utilities.GetZephyrFile(file.Source, clients);
+                ZephyrFile backupFile = Utilities.GetZephyrFile($"{file.Source}_{DateTime.Now.ToString("yyyyMMddHHmmss")}", clients);
                 sourceFile.CopyTo(backupFile);
             }
             catch (Exception e)
@@ -196,7 +196,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
             stream = null;
         else
         {
-            SynapseFile settingsFile = Utilities.GetSynapseFile(settings.Name, clients);
+            ZephyrFile settingsFile = Utilities.GetZephyrFile(settings.Name, clients);
             stream = settingsFile.OpenStream(AccessType.Read);
             if (settings.HasEncryptedValues)
             {
