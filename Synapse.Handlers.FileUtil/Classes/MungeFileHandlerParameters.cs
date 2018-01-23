@@ -13,7 +13,7 @@ using Synapse.Core;
 
 namespace Synapse.Handlers.FileUtil
 {
-    public class ModifyFileHandlerParameters
+    public class MungeFileHandlerParameters
     {
         [XmlArrayItem(ElementName="File")]
         public List<ModifyFileType> Files { get; set; }

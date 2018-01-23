@@ -13,15 +13,15 @@ using Zephyr.Filesystem;
 using Synapse.Core;
 using Synapse.Handlers.FileUtil;
 
-public class ModifyFileHandler : HandlerRuntimeBase
+public class MungeFileHandler : HandlerRuntimeBase
 {
-    ModifyFileHandlerConfig config = null;
-    ModifyFileHandlerParameters parameters = null;
+    MungeFileHandlerConfig config = null;
+    MungeFileHandlerParameters parameters = null;
     Clients clients = new Clients();
 
     public override IHandlerRuntime Initialize(string configStr)
     {
-        config = HandlerUtils.Deserialize<ModifyFileHandlerConfig>(configStr);
+        config = HandlerUtils.Deserialize<MungeFileHandlerConfig>(configStr);
         clients.aws = HandlerUtils.InitAwsClient(config.Aws);
         return base.Initialize(configStr);
     }
@@ -33,7 +33,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
 
     public override object GetParametersInstance()
     {
-        ModifyFileHandlerParameters parms = new ModifyFileHandlerParameters();
+        MungeFileHandlerParameters parms = new MungeFileHandlerParameters();
 
         parms.Files = new List<ModifyFileType>();
 
@@ -60,7 +60,7 @@ public class ModifyFileHandler : HandlerRuntimeBase
         {
             OnProgress("ModifyFileHandler", "Handler Execution Begins.", StatusType.Running, 0, cheapSequence++);
             if (startInfo.Parameters != null)
-                parameters = HandlerUtils.Deserialize<ModifyFileHandlerParameters>(startInfo.Parameters);
+                parameters = HandlerUtils.Deserialize<MungeFileHandlerParameters>(startInfo.Parameters);
 
             bool isValid = Validate();
 

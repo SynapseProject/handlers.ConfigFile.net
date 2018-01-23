@@ -75,14 +75,14 @@
     <Compile Include="Classes\Enums\ConfigType.cs" />
     <Compile Include="Classes\Enums\FileAction.cs" />
     <Compile Include="Classes\Enums\FileType.cs" />
-    <Compile Include="Classes\ModifyFileHandlerConfig.cs" />
+    <Compile Include="Classes\MungeFileHandlerConfig.cs" />
     <Compile Include="Classes\CopyFileHandlerParameters.cs" />
-    <Compile Include="Classes\ModifyFileHandlerParameters.cs" />
+    <Compile Include="Classes\MungeFileHandlerParameters.cs" />
     <Compile Include="Classes\Utils\HandlerUtils.cs" />
     <Compile Include="DeleteFileHandler.cs" />
     <Compile Include="CopyFileHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ModifyFileHandler.cs" />
+    <Compile Include="MungeFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

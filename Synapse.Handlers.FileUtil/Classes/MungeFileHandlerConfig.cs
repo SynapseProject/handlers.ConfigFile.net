@@ -15,7 +15,7 @@ using Synapse.Core.Utilities;
 
 namespace Synapse.Handlers.FileUtil
 {
-    public class ModifyFileHandlerConfig
+    public class MungeFileHandlerConfig
     {
         [XmlElement]
         public ConfigType Type { get; set; } = ConfigType.None;
