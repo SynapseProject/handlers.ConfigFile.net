@@ -68,6 +68,10 @@ public class CopyFileHandler : HandlerRuntimeBase
         ExecuteResult result = new ExecuteResult();
         result.Status = StatusType.Success;
 
+        // TODO : Implement DryRun Functionality
+        if (startInfo.IsDryRun)
+            throw new NotImplementedException("Dry Run Functionality Has Not Yet Been Implemented.");
+
         try
         {
             if (startInfo.Parameters != null)

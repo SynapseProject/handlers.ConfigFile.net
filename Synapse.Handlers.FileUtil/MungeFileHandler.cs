@@ -56,6 +56,10 @@ public class MungeFileHandler : HandlerRuntimeBase
         result.Status = StatusType.Success;
         int cheapSequence = 0;
 
+        // TODO : Implement DryRun Functionality
+        if (startInfo.IsDryRun)
+            throw new NotImplementedException("Dry Run Functionality Has Not Yet Been Implemented.");
+
         try
         {
             OnProgress("ModifyFileHandler", "Handler Execution Begins.", StatusType.Running, 0, cheapSequence++);

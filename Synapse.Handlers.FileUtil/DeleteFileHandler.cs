@@ -57,6 +57,10 @@ public class DeleteFileHandler : HandlerRuntimeBase
         result.Status = StatusType.Success;
         int cheapSequence = 0;
 
+        // TODO : Implement DryRun Functionality
+        if (startInfo.IsDryRun)
+            throw new NotImplementedException("Dry Run Functionality Has Not Yet Been Implemented.");
+
         OnProgress("DeleteFileHandler", "Handler Execution Begins.", StatusType.Running, 0, cheapSequence++);
         try
         {
