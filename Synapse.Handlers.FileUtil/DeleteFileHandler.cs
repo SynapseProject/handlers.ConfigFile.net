@@ -75,12 +75,12 @@ public class DeleteFileHandler : HandlerRuntimeBase
                         if (Utilities.IsDirectory(target))
                         {
                             ZephyrDirectory dir = Utilities.GetZephyrDirectory(target, clients);
-                            dir.Delete(null, config.Recurse, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
+                            dir.Delete(config.Recurse, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                         else
                         {
                             ZephyrFile file = Utilities.GetZephyrFile(target, clients);
-                            file.Delete(null, config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
+                            file.Delete(config.StopOnError, config.Verbose, "DeleteFileHandler", Logger);
                         }
                     }
                     OnLogMessage("DeleteFileHandler", $"Finished Delete Of [{string.Join(",", parameters.Targets.ToArray())}]");

@@ -25,20 +25,20 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
-            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
+            io.Stream transformStream = transform?.Open(AccessType.Read);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -48,8 +48,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -66,19 +66,19 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -88,8 +88,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -126,20 +126,20 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
-            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
+            io.Stream transformStream = transform?.Open(AccessType.Read);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -149,8 +149,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -167,19 +167,19 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -189,8 +189,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -289,20 +289,20 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
-            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
+            io.Stream transformStream = transform?.Open(AccessType.Read);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -312,8 +312,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -330,19 +330,19 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -352,8 +352,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -438,20 +438,20 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
-            io.Stream transformStream = transform?.OpenStream(AccessType.Read);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
+            io.Stream transformStream = transform?.Open(AccessType.Read);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -461,8 +461,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);
@@ -479,19 +479,19 @@ namespace Synapse.Handlers.FileUtil
             {
                 if (destination == null)
                     throw new Exception($"Destination File Is Not Provided, and Overwrite Is Set To [{overwrite}].");
-                else if (destination.Exists())
+                else if (destination.Exists)
                     throw new Exception($"Destination File [{destinationFile}] Already Exists.");
             }
 
-            io.Stream sourceStream = source?.OpenStream(AccessType.Read);
-            io.Stream destinationStream = destination?.OpenStream(AccessType.Write);
+            io.Stream sourceStream = source?.Open(AccessType.Read);
+            io.Stream destinationStream = destination?.Open(AccessType.Write);
 
             if (destinationStream == null)
             {
                 String tempFileName = $"{source.FullName}_tmpout";
                 destination = Utilities.GetZephyrFile(tempFileName, clients);
-                destination.Create(null, overwrite);
-                destinationStream = destination?.OpenStream(AccessType.Write);
+                destination.Create(overwrite);
+                destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
 
@@ -501,8 +501,8 @@ namespace Synapse.Handlers.FileUtil
             {
                 sourceStream.Close();
                 destinationStream.Close();
-                source.CloseStream();
-                destination.CloseStream();
+                source.Close();
+                destination.Close();
 
                 source.Delete();
                 destination.MoveTo(source);

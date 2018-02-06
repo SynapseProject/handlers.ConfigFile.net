@@ -89,7 +89,7 @@ public class CopyFileHandler : HandlerRuntimeBase
                                 if (Utilities.IsDirectory(destination) && config.PurgeDestination)
                                 {
                                     ZephyrDirectory clearDir = Utilities.GetZephyrDirectory(destination, clients);
-                                    clearDir.Clear(null, config.StopOnError, config.Verbose, "Purge", Logger);
+                                    clearDir.Purge(config.StopOnError, config.Verbose, "Purge", Logger);
                                     OnLogMessage("CopyFileHandler", $"Directory [{destination}] Was Purged.");
                                 }
 
@@ -121,18 +121,18 @@ public class CopyFileHandler : HandlerRuntimeBase
                                             // Copy/Move File To Directory
                                             ZephyrDirectory destDir = Utilities.GetZephyrDirectory(destination, clients);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
+                                                sourceFile.CopyTo(destDir, config.OverwriteExisting, true, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destDir, config.OverwriteExisting, config.StopOnError, config.Verbose, "Move", Logger);
+                                                sourceFile.MoveTo(destDir, config.OverwriteExisting, true, config.StopOnError, config.Verbose, "Move", Logger);
                                         }
                                         else
                                         {
                                             // Copy/Move File To File
                                             ZephyrFile destFile = Utilities.GetZephyrFile(destination, clients);
                                             if (config.Action == FileAction.Copy)
-                                                sourceFile.CopyTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Copy", Logger);
+                                                sourceFile.CopyTo(destFile, config.OverwriteExisting, true, config.StopOnError, config.Verbose, "Copy", Logger);
                                             else
-                                                sourceFile.MoveTo(destFile, config.OverwriteExisting, config.StopOnError, config.Verbose, "Move", Logger);
+                                                sourceFile.MoveTo(destFile, config.OverwriteExisting, true, config.StopOnError, config.Verbose, "Move", Logger);
                                         }
                                     }
                                 }

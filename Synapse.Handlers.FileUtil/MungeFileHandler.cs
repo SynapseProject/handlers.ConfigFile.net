@@ -197,7 +197,7 @@ public class MungeFileHandler : HandlerRuntimeBase
         else
         {
             ZephyrFile settingsFile = Utilities.GetZephyrFile(settings.Name, clients);
-            stream = settingsFile.OpenStream(AccessType.Read);
+            stream = settingsFile.Open(AccessType.Read);
             if (settings.HasEncryptedValues)
             {
                 CryptoProvider crypto = new CryptoProvider();

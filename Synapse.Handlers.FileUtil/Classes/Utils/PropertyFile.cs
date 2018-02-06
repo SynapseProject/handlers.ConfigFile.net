@@ -47,7 +47,7 @@ namespace Synapse.Handlers.FileUtil
         public void Load(String filename)
         { 
             ZephyrFile file = Utilities.GetZephyrFile(filename, _clients);
-            io.Stream stream = file.OpenStream(AccessType.Read);
+            io.Stream stream = file.Open(AccessType.Read);
             Load(stream);
         }
 
@@ -83,7 +83,7 @@ namespace Synapse.Handlers.FileUtil
         public void Save(String filename)
         {
             ZephyrFile file = Utilities.GetZephyrFile(filename, _clients);
-            io.Stream stream = file.OpenStream(AccessType.Write);
+            io.Stream stream = file.Open(AccessType.Write);
             Save(stream);
         }
 
