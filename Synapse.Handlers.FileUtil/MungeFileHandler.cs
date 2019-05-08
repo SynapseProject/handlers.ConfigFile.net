@@ -202,42 +202,49 @@ public class MungeFileHandler : HandlerRuntimeBase
         {
             ZephyrFile settingsFile = Utilities.GetZephyrFile(settings.Name, clients);
             stream = settingsFile.Open(AccessType.Read);
-            if (settings.HasEncryptedValues)
-            {
-                CryptoProvider crypto = new CryptoProvider();
-                crypto.Key = new CryptoKeyInfo();
-                if (planCrypto != null)
+            if( settings.HasEncryptedValues )
+            { 
+                if( planCrypto == null || !planCrypto.HasProvider )
                 {
-                    crypto.Key.Uri = planCrypto.Key.Uri;
-                    crypto.Key.ContainerName = planCrypto.Key.ContainerName;
-                    crypto.Key.CspFlags = planCrypto.Key.CspFlags;
+                    OnLogMessage( "SettingsFile", "WARNING : HasEncryptedValues flag is set, but no Crypto section was found in the plan.  No decryption will occur." );
                 }
-
-                if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.Uri))
-                    crypto.Key.Uri = settings.Crypto.Key.Uri;
-                if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.ContainerName))
-                    crypto.Key.ContainerName = settings.Crypto.Key.ContainerName;
-
-                if (String.IsNullOrWhiteSpace(crypto.Key.Uri) || String.IsNullOrWhiteSpace(crypto.Key.ContainerName))
-                    OnLogMessage("SettingsFile", "WARNING : HasEncryptedValues flag is set, but no Crypto section was found in the plan.  No decryption will occur.");
                 else
                 {
-                    crypto.LoadRsaKeys();
+                    CryptoProvider crypto = planCrypto; // new CryptoProvider();
+                                                        //crypto.Key = new CryptoKeyInfo();
+                                                        //if (planCrypto != null)
+                                                        //{
+                                                        //    crypto.Key.Uri = planCrypto.Key.Uri;
+                                                        //    crypto.Key.ContainerName = planCrypto.Key.ContainerName;
+                                                        //    crypto.Key.CspFlags = planCrypto.Key.CspFlags;
+                                                        //}
+
+                    //if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.Uri))
+                    //    crypto.Key.Uri = settings.Crypto.Key.Uri;
+                    //if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.ContainerName))
+                    //    crypto.Key.ContainerName = settings.Crypto.Key.ContainerName;
+
+                    //if (String.IsNullOrWhiteSpace(crypto.Key.Uri) || String.IsNullOrWhiteSpace(crypto.Key.ContainerName))
+                    //    OnLogMessage("SettingsFile", "WARNING : HasEncryptedValues flag is set, but no Crypto section was found in the plan.  No decryption will occur.");
+                    //else
+                    //{
+                    //    crypto.LoadRsaKeys();
                     String settingsFileContent = null;
 
-                    switch (type)
+                    switch( type )
                     {
                         case ConfigType.XmlTransform:
-                            settingsFileContent = CryptoUtils.DecryptXmlFile(stream, crypto);
+                            settingsFileContent = CryptoUtils.DecryptXmlFile( stream, crypto );
                             break;
                         default:
-                            settingsFileContent = CryptoUtils.DecryptCsvFile(stream, crypto);
+                            settingsFileContent = CryptoUtils.DecryptCsvFile( stream, crypto );
                             break;
                     }
                     byte[] byteArray = new byte[0];
-                    if (!String.IsNullOrWhiteSpace(settingsFileContent))
-                        byteArray = Encoding.UTF8.GetBytes(settingsFileContent);
-                    stream = new MemoryStream(byteArray);
+                    if( !String.IsNullOrWhiteSpace( settingsFileContent ) )
+                        byteArray = Encoding.UTF8.GetBytes( settingsFileContent );
+                    stream = new MemoryStream( byteArray );
+                    //}
                 }
             }
         }

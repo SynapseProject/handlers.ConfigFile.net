@@ -1,0 +1,19 @@
+Name: s3-end-point-without-aws-config-section
+Description: Test DeleteFileHandler
+Actions:
+- Name: Action001
+  Handler:
+    Type: Synapse.Handlers.FileUtil:DeleteFileHandler
+    Config:
+      Values:
+        Recurse: true
+        StopOnError: true
+        Verbose: true
+  Parameters:
+    Values:
+      Targets:
+      - C:\MyDir\MyFile.txt
+      - C:\MyDir\MySubDir\
+      - '\\server\share$\dir\file.dat'
+      - s3://mybucket/dir/subdir/
+      - s3://mybucket/dir/dir2/MyFile.txt

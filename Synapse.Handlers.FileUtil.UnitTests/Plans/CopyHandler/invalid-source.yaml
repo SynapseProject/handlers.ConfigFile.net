@@ -1,0 +1,23 @@
+Name: CopyFile001
+Description: Test CopyFile Handler
+IsActive: true
+Actions:
+- Name: Action001
+  Handler:
+    Type: Synapse.Handlers.FileUtil:CopyFileHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Copy
+        OverwriteExisting: true
+        Recurse : true
+        PurgeDestination: false
+        Verbose: true
+  Parameters:
+    Type: Yaml
+    Values:
+      FileSets:
+      - Sources: 
+        - C:\InvalidSource\
+        Destinations: 
+        - C:\Temp\
