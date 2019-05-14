@@ -1,0 +1,20 @@
+######################################
+#ENVIRONMENT VARIABLES
+######################################
+SET ENVIRON=DEV
+SET ENVIRONSUB=01
+SET ENVIRONALL=%ENVIRON%%ENVIRONSUB%
+SET ORACLE_HOME=C:\Oracle\x64\product\10.1.0\abcd_1
+SET ENDUR_JRE=jdk1.9.0.69
+SET ENDUR_FS_ROOT=C:\OpenLink\logs
+SET ENDUR_VER=NEW_VERSION_NUMBER_HERE
+SET AB_BIN=C:\OpenLink\Endur\%ENDUR_VER%\x64\bin
+SET OLFCMD_BIN=C:\OpenLink\Endur\%ENDUR_VER%\x64\Automation v1.0\OLFCmd
+SET OLFCMD_URL=http://newserver:1234
+SET APM_BIN=%AB_BIN%\apm
+SET OLF_BIN=%AB_BIN%
+SET JAVA_HOME=%AB_BIN%\olf_dependencies\java\%ENDUR_JRE%
+SET AB_JRE_HOME=%AB_BIN%\olf_dependencies\java\%ENDUR_JRE%\jre
+SET CLASSPATH=%AB_BIN%\tpm\jtds-1.2.2.jar
+SET AB_CLASSPATH=%AB_BIN%\olf_dependencies\java\%ENDUR_JRE%
+SET AB_OPENCOMPONENT_CLASSPATH=%OLF_BIN%\RiskApplications\riskpak-classpath.jar;%OLF_BIN%\CollateralMgtDesktop\Plugins\OL.CollateralMgtDesktop.jar

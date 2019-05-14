@@ -1,0 +1,12 @@
+#comment
+name= Yang
+name = Siew Hooi
+name : Steve-Short
+name    =    New\\Name
+path=c:\\temp\\newpath\\doc1
+color.background=black
+color\=foreground = new color
+color\:highlight : yellow
+color-border = green
+icon.doc = icon1.png
+icon.video = icon2.png

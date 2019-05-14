@@ -1,0 +1,57 @@
+Name: SamplePlan
+Actions:
+- Name: Action001
+  Handler:
+    Type: synapse.handlers.Fileutil:MungeFileHandler
+    Config: 
+      Type: Yaml
+      Values:
+        Type: INI
+        BackupSource: true
+        CreateSettingIfNotFound: true
+  Parameters:
+    Values:
+      Files:
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\system.ini
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\system.ini.new
+        Settings:
+        - Key: NewKey
+          Value: NewValue
+        - Key: TESTKEY
+          Value: NEWTESTVALUE
+        - Key: "[SECTION2]:string.1"
+          Value: New Case 1
+        - Key: SECTION2
+          Value: This is not a section
+        - Key: "[NEWSECTION]:KEY"
+          Value: Value for NEWSECTION:KEY
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\config.properties
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\config.properties.new
+        Type: KeyValue
+        Settings:
+        - Key: NewKey
+          Value: NewValue
+        - Key: name
+          Value: New\\Name
+        - Key: color\=foreground
+          Value: new color
+        - Key: path
+          Value: c:\\temp\\newpath\\doc1
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config.new
+        Type: Regex
+        Settings:
+        - Key: (SET\s*ENDUR_VER\s*=\s*).*?$
+          Value: ${1}NEW_VERSION_NUMBER_HERE
+        - Key: (OLFCMD_URL\s*=\s*).*?$
+          Value: ${1}http://newserver:1234
+        - Key: (ENDUR_JRE\s*=\s*).*?$
+          Value: ${1}jdk1.9.0.69
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config.new
+        Type: XPath
+        Settings:
+        - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"initVector\"]/value"
+          Value: "MyNewValue"
+        - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"KeyContainerName\"]/value"
+          Value: "NewKeyName"

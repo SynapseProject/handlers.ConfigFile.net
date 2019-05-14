@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="CopyFileHanderTests.cs" />
     <Compile Include="DeleteFileHandlerTests.cs" />
-    <Compile Include="Global.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="MungeFileHandlerTests.cs" />
   </ItemGroup>
   <ItemGroup>

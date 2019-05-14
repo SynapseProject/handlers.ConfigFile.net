@@ -1,0 +1,44 @@
+Name: SamplePlan
+Actions:
+- Name: Action001
+  Handler:
+    Type: synapse.handlers.Fileutil:MungeFileHandler
+    Config: 
+      Type: Yaml
+      Values:
+        Type: INI
+        BackupSource: true
+        CreateSettingIfNotFound: true
+        RunSequential: true
+  Parameters:
+    Crypto:
+      Provider:
+        Config:
+          Values:
+            Uri: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\pubPriv.key
+    Values:
+      Files:
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config.new
+        SettingsFile: 
+          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regextransform-crypto.csv
+          HasEncryptedValues: true
+        Type: Regex
+        Settings:
+        - Key: (SET\s*ENDUR_VER\s*=\s*).*?$
+          Value: ${1}NEW_VERSION_NUMBER_HERE
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config.new
+        SettingsFile:
+          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpathtransform-crypto.csv
+          HasEncryptedValues: true
+        Type: XPath
+        Settings:
+        - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"initVector\"]/value"
+          Value: "MyNewValue"
+      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\web.config
+        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\web.config.new
+        SettingsFile:
+          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xmltransform-crypto.xml
+          HasEncryptedValues: true
+        Type: XmlTransform

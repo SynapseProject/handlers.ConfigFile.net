@@ -79,6 +79,11 @@ public class MungeFileHandler : HandlerRuntimeBase
                         Parallel.ForEach(parameters.Files, file => ProcessFile(file, startInfo));
                 }
             }
+            else
+            {
+                OnLogMessage( "MungeFileHandler", "Validation Failed.", LogLevel.Error );
+                throw new Exception( "Invalid Input Received" );
+            }
         }
         catch (Exception e)
         {
@@ -148,6 +153,8 @@ public class MungeFileHandler : HandlerRuntimeBase
                     OnLogMessage("ProcessFile", message);
                     throw new Exception(message);
             }
+            if( settingsFileStream != null )
+                settingsFileStream.Close();
 
             if (String.IsNullOrWhiteSpace(file.Destination))
                 OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", modifyType, file.Source));
@@ -181,7 +188,7 @@ public class MungeFileHandler : HandlerRuntimeBase
                     isValid = false;
                 }
 
-                if (config.Aws == null && Utilities.GetUrlType(file.SettingsFile.Name) == UrlType.AwsS3File)
+                if (config.Aws == null && Utilities.GetUrlType(file.SettingsFile?.Name) == UrlType.AwsS3File)
                 {
                     OnLogMessage("Validate", $"File [{file.SettingsFile.Name}] Is In An S3 Bucket, But No Aws Section Is Specified In The Config Section.");
                     isValid = false;
@@ -196,7 +203,7 @@ public class MungeFileHandler : HandlerRuntimeBase
     private Stream GetSettingsFileStream(ConfigType type, SettingsFileType settings, CryptoProvider planCrypto)
     {
         Stream stream = null;
-        if (String.IsNullOrWhiteSpace(settings.Name))
+        if (String.IsNullOrWhiteSpace(settings?.Name))
             stream = null;
         else
         {
@@ -210,14 +217,15 @@ public class MungeFileHandler : HandlerRuntimeBase
                 }
                 else
                 {
-                    CryptoProvider crypto = planCrypto; // new CryptoProvider();
-                                                        //crypto.Key = new CryptoKeyInfo();
-                                                        //if (planCrypto != null)
-                                                        //{
-                                                        //    crypto.Key.Uri = planCrypto.Key.Uri;
-                                                        //    crypto.Key.ContainerName = planCrypto.Key.ContainerName;
-                                                        //    crypto.Key.CspFlags = planCrypto.Key.CspFlags;
-                                                        //}
+                    CryptoProvider crypto = planCrypto; 
+                    // new CryptoProvider();
+                    //crypto.Key = new CryptoKeyInfo();
+                    //if (planCrypto != null)
+                    //{
+                    //    crypto.Key.Uri = planCrypto.Key.Uri;
+                    //    crypto.Key.ContainerName = planCrypto.Key.ContainerName;
+                    //    crypto.Key.CspFlags = planCrypto.Key.CspFlags;
+                    //}
 
                     //if (!String.IsNullOrWhiteSpace(settings.Crypto?.Key?.Uri))
                     //    crypto.Key.Uri = settings.Crypto.Key.Uri;

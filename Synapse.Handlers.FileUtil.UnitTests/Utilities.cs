@@ -3,45 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using System.IO;
 namespace Synapse.Handlers.FileUtil.UnitTests
 {
-    [SetUpFixture]
-    public class Global
+    public static class Utilities
     {
-        public static string Root = null;
-        public static string PlansRoot = null;
-        public static string TestFilesRoot = null;
-        public static string WorkingDirectory = null;
-        public static string SourceDir1 = null;
-        public static string SourceDir2 = null;
-        public static string DestDir1 = null;
-        public static string DestDir2 = null;
-
-        [OneTimeSetUp]
-        public void Init()
+        public static void SetupTestFiles(string source = null, string destination = null)
         {
-            Root = Path.GetDirectoryName( System.Reflection.Assembly.GetExecutingAssembly().Location );
-            Directory.SetCurrentDirectory( $@"{Root}\..\.." );
-            Root = Directory.GetCurrentDirectory();
-            PlansRoot = $@"{Root}\Plans";
-            TestFilesRoot = $@"{Root}\TestFiles";
-            WorkingDirectory = $@"{Root}\WorkingDir";
-            SourceDir1 = $@"{WorkingDirectory}\Source1";
-            SourceDir2 = $@"{WorkingDirectory}\Source2";
-            DestDir1 = $@"{WorkingDirectory}\Dest1";
-            DestDir2 = $@"{WorkingDirectory}\Dest2";
+            CleanupTestFiles( destination );
+            if( source == null )    // if there is nothing to copy over just make sure dir exists
+            {
+                if( !Directory.Exists( destination ) )
+                {
+                    Directory.CreateDirectory( destination );
+                }
+            }
+            else
+            {
+                DirectoryCopy( source, destination, true );
+            }
         }
-        public static void SetupTestFiles()
+        public static void CleanupTestFiles( string destination )
         {
-            CleanupTestFiles();
-            DirectoryCopy( TestFilesRoot, WorkingDirectory, true );
-        }
-        public static void CleanupTestFiles()
-        {
-            if( Directory.Exists( WorkingDirectory ) )
-                Directory.Delete( WorkingDirectory, true );
+            if( destination != null && Directory.Exists( destination ) )
+                Directory.Delete( destination, true );
         }
         public static void DirectoryCopy(string source, string destination, bool copySubDirs)
         {

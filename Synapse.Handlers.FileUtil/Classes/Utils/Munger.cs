@@ -41,16 +41,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
-
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
+            
             XMLTransform(sourceStream, destinationStream, transformStream);
+
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
             if (tempFileUsed)
             {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
-
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -81,16 +85,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             XMLTransform(sourceStream, destinationStream, transformStream);
 
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
+
             if (tempFileUsed)
             {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
-
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -142,16 +150,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             KeyValue(type, sourceStream, destinationStream, transformStream, settings, createIfNotFound);
 
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
+
             if (tempFileUsed)
             {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
-
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -182,16 +194,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );
+            }
 
             KeyValue(type, sourceStream, destinationStream, transformStream, settings, createIfNotFound);
 
-            if (tempFileUsed)
-            {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
+            if( tempFileUsed)
+            {
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -305,16 +321,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             XPath(sourceStream, destinationStream, transformStream, settings);
 
-            if (tempFileUsed)
-            {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
+            if( tempFileUsed)
+            {
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -345,16 +365,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             XPath(sourceStream, destinationStream, transformStream, settings);
 
-            if (tempFileUsed)
-            {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
+            if( tempFileUsed)
+            {
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -454,16 +478,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             RegexMatch(sourceStream, destinationStream, transformStream, settings);
 
-            if (tempFileUsed)
-            {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
+            if( tempFileUsed)
+            {
                 source.Delete();
                 destination.MoveTo(source);
             }
@@ -494,16 +522,20 @@ namespace Synapse.Handlers.FileUtil
                 destinationStream = destination?.Open(AccessType.Write);
                 tempFileUsed = true;
             }
+            else
+            {
+                destinationStream.SetLength( 0 );   // clear contents
+            }
 
             RegexMatch(sourceStream, destinationStream, transformStream, settings);
 
-            if (tempFileUsed)
-            {
-                sourceStream.Close();
-                destinationStream.Close();
-                source.Close();
-                destination.Close();
+            sourceStream.Close();
+            destinationStream.Close();
+            source.Close();
+            destination.Close();
 
+            if( tempFileUsed)
+            {
                 source.Delete();
                 destination.MoveTo(source);
             }

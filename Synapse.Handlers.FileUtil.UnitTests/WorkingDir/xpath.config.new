@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <applicationSettings>
+    <MyService.Properties.Settings>
+      <setting name="KeyContainerName" serializeAs="String">
+        <value>NewKeyName</value>
+      </setting>
+      <setting name="passPhrase" serializeAs="String">
+        <value>MyPassPhrase</value>
+      </setting>
+      <setting name="saltValue" serializeAs="String">
+        <value>MySaltValue</value>
+      </setting>
+      <setting name="initVector" serializeAs="String">
+        <value>MyNewValue</value>
+      </setting>
+      <setting name="LogPath" serializeAs="String">
+        <value>\\myserver\logs\AuditLog</value>
+      </setting>
+      <setting name="Log4NetConversionPattern" serializeAs="String">
+        <value>%d{ISO8601}|%-5p|(%t)|%m%n</value>
+      </setting>
+      <setting name="FailedRequestsLogPath" serializeAs="String">
+        <value>\\myserver\logs\FailedRequests</value>
+      </setting>
+    </MyService.Properties.Settings>
+  </applicationSettings>
+</configuration>

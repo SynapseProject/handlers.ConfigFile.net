@@ -74,8 +74,8 @@ namespace Synapse.Handlers.FileUtil
         public String Name { get; set; }
         [XmlElement]
         public bool HasEncryptedValues { get; set; } = false;
-        [XmlElement]
-        public CryptoProvider Crypto { get; set; }
+        //[XmlElement]
+        //public CryptoProvider Crypto { get; set; }
 
     }
 }

@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using System.Xml;
 using System.Xml.Serialization;
 using Alphaleonis.Win32.Filesystem;
 using Zephyr.Filesystem;
-
 using Synapse.Handlers.FileUtil;
-
 using Synapse.Core;
 
 public class CopyFileHandler : HandlerRuntimeBase
