@@ -154,8 +154,11 @@ public class MungeFileHandler : HandlerRuntimeBase
                     throw new Exception(message);
             }
             if( settingsFileStream != null )
+            {
                 settingsFileStream.Close();
-
+                ZephyrFile settingsFile = Utilities.GetZephyrFile( file.SettingsFile.Name, clients );
+                settingsFile.Close();
+            }
             if (String.IsNullOrWhiteSpace(file.Destination))
                 OnLogMessage("ModifyFileHandler", String.Format(@"Config Type [{0}], Modified [{1}].", modifyType, file.Source));
             else
@@ -251,6 +254,8 @@ public class MungeFileHandler : HandlerRuntimeBase
                     byte[] byteArray = new byte[0];
                     if( !String.IsNullOrWhiteSpace( settingsFileContent ) )
                         byteArray = Encoding.UTF8.GetBytes( settingsFileContent );
+                    // close the old stream first
+                    stream.Close(); 
                     stream = new MemoryStream( byteArray );
                     //}
                 }

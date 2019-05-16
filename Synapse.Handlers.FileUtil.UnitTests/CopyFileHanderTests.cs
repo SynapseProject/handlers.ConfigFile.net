@@ -15,11 +15,6 @@ namespace Synapse.Handlers.FileUtil.UnitTests
         public static string _root = null;
         public static string _plansRoot = null;
         public static string _inputFiles = null;
-        public static string _workingDirectory = null;
-        public static string _sourceDir1 = null;
-        public static string _sourceDir2 = null;
-        public static string _destDir1 = null;
-        public static string _destDir2 = null;
 
         [OneTimeSetUp]
         public void Init()
@@ -29,11 +24,6 @@ namespace Synapse.Handlers.FileUtil.UnitTests
             _root = Directory.GetCurrentDirectory();
             _plansRoot = $@"{_root}\Plans\CopyFile";
             _inputFiles = $@"{_plansRoot}\InputFiles";
-            _workingDirectory = $@"{_root}\WorkingDir";
-            _sourceDir1 = $@"{_workingDirectory}\Dir1";
-            _sourceDir2 = $@"{_workingDirectory}\Dir2";
-            _destDir1 = $@"{_workingDirectory}\Dest1";
-            _destDir2 = $@"{_workingDirectory}\Dest2";
         }
         [Test]
         public void InvalidSourceShouldFail()
@@ -70,7 +60,12 @@ namespace Synapse.Handlers.FileUtil.UnitTests
         [Test]
         public void CopyFileToFile()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+            string destDir2 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
 
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
@@ -92,10 +87,10 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\File1.txt
+        - {sourceDir1}\File1.txt
         Destinations:
-        - {_destDir1}\File1New.txt
-        - {_destDir2}\File1New.txt";
+        - {destDir1}\File1New.txt
+        - {destDir2}\File1New.txt";
 
             Console.WriteLine( planInput );
 
@@ -105,20 +100,24 @@ Actions:
                 plan.Start( null, false, true );
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
-                Assert.True( File.Exists( $@"{_sourceDir1}\File1.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir1}\File1New.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir2}\File1New.txt" ) );
-                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{_destDir1}", "*", SearchOption.AllDirectories ).Count();
-                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{_destDir2}", "*", SearchOption.AllDirectories ).Count();
+                Assert.True( File.Exists( $@"{sourceDir1}\File1.txt" ) );
+                Assert.True( File.Exists( $@"{destDir1}\File1New.txt" ) );
+                Assert.True( File.Exists( $@"{destDir2}\File1New.txt" ) );
+                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{destDir1}", "*", SearchOption.AllDirectories ).Count();
+                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{destDir2}", "*", SearchOption.AllDirectories ).Count();
                 Assert.AreEqual( 1, countDest1 );
                 Assert.AreEqual( 1, countDest2 );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void CopyFileToDir()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+            string destDir2 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
 
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
@@ -140,10 +139,10 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\File1.txt
+        - {sourceDir1}\File1.txt
         Destinations:
-        - {_destDir1}\
-        - {_destDir2}\";
+        - {destDir1}\
+        - {destDir2}\";
 
             Console.WriteLine( planInput );
             using( TextReader reader = new StringReader( planInput ) )
@@ -152,20 +151,26 @@ Actions:
                 plan.Start( null, false, true );
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
-                Assert.True( File.Exists( $@"{_sourceDir1}\File1.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir1}\File1.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir2}\File1.txt" ) );
-                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{_destDir1}", "*", SearchOption.AllDirectories ).Count();
-                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{_destDir2}", "*", SearchOption.AllDirectories ).Count();
+                Assert.True( File.Exists( $@"{sourceDir1}\File1.txt" ) );
+                Assert.True( File.Exists( $@"{destDir1}\File1.txt" ) );
+                Assert.True( File.Exists( $@"{destDir2}\File1.txt" ) );
+                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{destDir1}", "*", SearchOption.AllDirectories ).Count();
+                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{destDir2}", "*", SearchOption.AllDirectories ).Count();
                 Assert.AreEqual( 1, countDest1 );
                 Assert.AreEqual( 1, countDest2 );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void CopyDirToDir()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string sourceDir2 = $@"{workingDirectory}\Dir2";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+            string destDir2 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
 IsActive: true
@@ -186,11 +191,11 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\
-        - {_sourceDir2}\
+        - {sourceDir1}\
+        - {sourceDir2}\
         Destinations:
-        - {_destDir1}\
-        - {_destDir2}\";
+        - {destDir1}\
+        - {destDir2}\";
 
             Console.WriteLine( planInput );
 
@@ -201,19 +206,24 @@ Actions:
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
 
-                int countSource = Directory.EnumerateFileSystemEntries( $@"{_sourceDir1}", "*", SearchOption.AllDirectories ).Count() +
-                    Directory.EnumerateFileSystemEntries( $@"{_sourceDir2}", "*", SearchOption.AllDirectories ).Count(); ;
-                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{_destDir1}", "*", SearchOption.AllDirectories ).Count();
-                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{_destDir2}", "*", SearchOption.AllDirectories ).Count();
+                int countSource = Directory.EnumerateFileSystemEntries( $@"{sourceDir1}", "*", SearchOption.AllDirectories ).Count() +
+                    Directory.EnumerateFileSystemEntries( $@"{sourceDir2}", "*", SearchOption.AllDirectories ).Count(); ;
+                int countDest1 = Directory.EnumerateFileSystemEntries( $@"{destDir1}", "*", SearchOption.AllDirectories ).Count();
+                int countDest2 = Directory.EnumerateFileSystemEntries( $@"{destDir2}", "*", SearchOption.AllDirectories ).Count();
                 Assert.AreEqual( countSource, countDest1 );
                 Assert.AreEqual( countSource, countDest2 );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void CopyDirNoRecurseShouldCopySubDirsButNotContents()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir2 = $@"{workingDirectory}\Dir2";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
 IsActive: true
@@ -234,9 +244,9 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir2}\
+        - {sourceDir2}\
         Destinations:
-        - {_destDir1}\";
+        - {destDir1}\";
 
             Console.WriteLine( planInput );
 
@@ -247,11 +257,11 @@ Actions:
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
 
-                int countSource = Directory.EnumerateFileSystemEntries( $@"{_sourceDir2}", "*", SearchOption.TopDirectoryOnly ).Count();
-                int countDest = Directory.EnumerateFileSystemEntries( $@"{_destDir1}", "*", SearchOption.AllDirectories ).Count();
+                int countSource = Directory.EnumerateFileSystemEntries( $@"{sourceDir2}", "*", SearchOption.TopDirectoryOnly ).Count();
+                int countDest = Directory.EnumerateFileSystemEntries( $@"{destDir1}", "*", SearchOption.AllDirectories ).Count();
                 Assert.AreEqual( countSource, countDest );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void CopyS3FileToS3File()
@@ -271,7 +281,10 @@ Actions:
         [Test]
         public void MoveFileToFile()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
 
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
@@ -293,9 +306,9 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\File1.txt
+        - {sourceDir1}\File1.txt
         Destinations:
-        - {_destDir1}\File1New.txt";
+        - {destDir1}\File1New.txt";
 
             Console.WriteLine( planInput );
 
@@ -305,15 +318,19 @@ Actions:
                 plan.Start( null, false, true );
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
-                Assert.True( !File.Exists( $@"{_sourceDir1}\File1.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir1}\File1New.txt" ) );
+                Assert.True( !File.Exists( $@"{sourceDir1}\File1.txt" ) );
+                Assert.True( File.Exists( $@"{destDir1}\File1New.txt" ) );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void MoveFileToDir()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
 IsActive: true
@@ -334,9 +351,9 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\File1.txt
+        - {sourceDir1}\File1.txt
         Destinations:
-        - {_destDir1}\";
+        - {destDir1}\";
 
             Console.WriteLine( planInput );
 
@@ -346,15 +363,20 @@ Actions:
                 plan.Start( null, false, true );
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
-                Assert.True( !File.Exists( $@"{_sourceDir1}\File1.txt" ) );
-                Assert.True( File.Exists( $@"{_destDir1}\File1.txt" ) );
+                Assert.True( !File.Exists( $@"{sourceDir1}\File1.txt" ) );
+                Assert.True( File.Exists( $@"{destDir1}\File1.txt" ) );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void MoveDirToDir()
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
+            string sourceDir1 = $@"{workingDirectory}\Dir1";
+            string sourceDir2 = $@"{workingDirectory}\Dir2";
+            string destDir1 = $@"{workingDirectory}\{Path.GetRandomFileName().Replace( ".", "" )}";
+
             string planInput = $@"Name: SamplePlan
 Description: Test CopyFile Handler
 IsActive: true
@@ -375,26 +397,26 @@ Actions:
     Values:
       FileSets:
       - Sources: 
-        - {_sourceDir1}\
-        - {_sourceDir2}\
+        - {sourceDir1}\
+        - {sourceDir2}\
         Destinations:
-        - {_destDir1}\";
+        - {destDir1}\";
 
             Console.WriteLine( planInput );
 
-            int countSource = Directory.EnumerateFileSystemEntries( $@"{_sourceDir1}", "*", SearchOption.AllDirectories ).Count() +
-                    Directory.EnumerateFileSystemEntries( $@"{_sourceDir2}", "*", SearchOption.AllDirectories ).Count(); ;
+            int countSource = Directory.EnumerateFileSystemEntries( $@"{sourceDir1}", "*", SearchOption.AllDirectories ).Count() +
+                    Directory.EnumerateFileSystemEntries( $@"{sourceDir2}", "*", SearchOption.AllDirectories ).Count(); ;
             using( TextReader reader = new StringReader( planInput ) )
             {
                 Plan plan = Plan.FromYaml( reader );
                 plan.Start( null, false, true );
                 string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
                 Assert.AreEqual( StatusType.Success.ToString(), status );
-                int countDest = Directory.EnumerateFileSystemEntries( $@"{_destDir1}", "*", SearchOption.AllDirectories ).Count();
+                int countDest = Directory.EnumerateFileSystemEntries( $@"{destDir1}", "*", SearchOption.AllDirectories ).Count();
 
                 Assert.AreEqual( countSource, countDest );
             }
-            Utilities.CleanupTestFiles( _workingDirectory );
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void MoveS3FileToS3File()

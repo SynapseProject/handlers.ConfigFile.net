@@ -15,30 +15,30 @@ Actions:
       Provider:
         Config:
           Values:
-            Uri: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\pubPriv.key
+            Uri: $WORKING_DIRECTORY\pubPriv.key
     Values:
       Files:
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config.new
+      - Source: $WORKING_DIRECTORY\regex.config
+        Destination: $WORKING_DIRECTORY\crypto-regex.config.new
         SettingsFile: 
-          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regextransform-crypto.csv
+          Name: $WORKING_DIRECTORY\regextransform-crypto.csv
           HasEncryptedValues: true
         Type: Regex
         Settings:
         - Key: (SET\s*ENDUR_VER\s*=\s*).*?$
           Value: ${1}NEW_VERSION_NUMBER_HERE
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config.new
+      - Source: $WORKING_DIRECTORY\xpath.config
+        Destination: $WORKING_DIRECTORY\crypto-xpath.config.new
         SettingsFile:
-          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpathtransform-crypto.csv
+          Name: $WORKING_DIRECTORY\xpathtransform-crypto.csv
           HasEncryptedValues: true
         Type: XPath
         Settings:
         - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"initVector\"]/value"
           Value: "MyNewValue"
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\web.config
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\web.config.new
+      - Source: $WORKING_DIRECTORY\web.config
+        Destination: $WORKING_DIRECTORY\crypto-web.config.new
         SettingsFile:
-          Name: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xmltransform-crypto.xml
+          Name: $WORKING_DIRECTORY\xmltransform-crypto.xml
           HasEncryptedValues: true
         Type: XmlTransform

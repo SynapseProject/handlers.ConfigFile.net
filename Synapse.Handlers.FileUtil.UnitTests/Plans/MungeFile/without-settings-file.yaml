@@ -12,8 +12,8 @@ Actions:
   Parameters:
     Values:
       Files:
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\system.ini
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\system.ini.new
+      - Source: $WORKING_DIRECTORY\system.ini
+        Destination: $WORKING_DIRECTORY\without-settings-system.ini.new
         Settings:
         - Key: NewKey
           Value: NewValue
@@ -25,8 +25,8 @@ Actions:
           Value: This is not a section
         - Key: "[NEWSECTION]:KEY"
           Value: Value for NEWSECTION:KEY
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\config.properties
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\config.properties.new
+      - Source: $WORKING_DIRECTORY\config.properties
+        Destination: $WORKING_DIRECTORY\without-settings-config.properties.new
         Type: KeyValue
         Settings:
         - Key: NewKey
@@ -37,8 +37,8 @@ Actions:
           Value: new color
         - Key: path
           Value: c:\\temp\\newpath\\doc1
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\regex.config.new
+      - Source: $WORKING_DIRECTORY\regex.config
+        Destination: $WORKING_DIRECTORY\without-settings-regex.config.new
         Type: Regex
         Settings:
         - Key: (SET\s*ENDUR_VER\s*=\s*).*?$
@@ -47,8 +47,8 @@ Actions:
           Value: ${1}http://newserver:1234
         - Key: (ENDUR_JRE\s*=\s*).*?$
           Value: ${1}jdk1.9.0.69
-      - Source: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config
-        Destination: C:\Siew Hooi\wip\handlers.FileUtil.net\Synapse.Handlers.FileUtil.UnitTests\WorkingDir\xpath.config.new
+      - Source: $WORKING_DIRECTORY\xpath.config
+        Destination: $WORKING_DIRECTORY\without-settings-xpath.config.new
         Type: XPath
         Settings:
         - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"initVector\"]/value"

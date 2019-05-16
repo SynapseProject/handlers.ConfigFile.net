@@ -18,7 +18,6 @@ namespace Synapse.Handlers.FileUtil.UnitTests
         public static string _plansRoot = null;
         public static string _inputFiles = null;
         public static string _outputFiles = null;
-        public static string _workingDirectory = null;
 
         [OneTimeSetUp]
         public void Init()
@@ -29,7 +28,6 @@ namespace Synapse.Handlers.FileUtil.UnitTests
             _plansRoot = $@"{_root}\Plans\MungeFile";
             _inputFiles = $@"{_plansRoot}\InputFiles";
             _outputFiles = $@"{_plansRoot}\OutputFiles";
-            _workingDirectory = $@"{_root}\WorkingDir";
         }
         [Test]
         public void S3EndPointsWithoutAwsConfigSectionShouldFail()
@@ -50,16 +48,28 @@ namespace Synapse.Handlers.FileUtil.UnitTests
             Assert.AreEqual( StatusType.Failed.ToString(), status );
         }
         [Test]
+        [TestCase( "dont-create-new-settings" )]
         [TestCase( "without-settings-file" )]
         [TestCase( "with-settings-file" )]
-        [TestCase( "in-place-modify" )]
+        [TestCase( "modify-in-place" )]
         [TestCase( "crypto" )]
         public void ModifyFile(string planFileWithoutExtension)
         {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
+            string workingDirectory = $@"{_root}\temp_{Path.GetRandomFileName().Replace( ".", "" )}";
+            Utilities.SetupTestFiles( _inputFiles, workingDirectory );
 
             Plan plan = Plan.FromYaml( $@"{_plansRoot}\{planFileWithoutExtension}.yaml" );
 
+            string parmString = plan.Actions[0].Parameters.GetSerializedValues();
+            string newParmString = parmString.Replace( "$WORKING_DIRECTORY", workingDirectory );
+            plan.Actions[0].Parameters.Values = YamlHelpers.Deserialize<Dictionary<object, object>>( newParmString );
+
+            if (plan.Actions[0].Parameters.HasCrypto)
+            {
+                string cyptoConfigString = plan.Actions[0].Parameters.Crypto.Provider.Config.GetSerializedValues();
+                string newCryptoConfigString = cyptoConfigString.Replace( "$WORKING_DIRECTORY", workingDirectory );
+                plan.Actions[0].Parameters.Crypto.Provider.Config.Values = YamlHelpers.Deserialize<Dictionary<object, object>>( newCryptoConfigString );
+            }
             plan.Start( null, false, true );
 
             // expected results file: {type}.out
@@ -69,7 +79,7 @@ namespace Synapse.Handlers.FileUtil.UnitTests
             string configstring = plan.Actions[0].Handler.Config.GetSerializedValues();
             MungeFileHandlerConfig config = YamlHelpers.Deserialize<MungeFileHandlerConfig>( configstring );
 
-            string parmString = plan.Actions[0].Parameters.GetSerializedValues();
+            parmString = plan.Actions[0].Parameters.GetSerializedValues();
             MungeFileHandlerParameters parms = YamlHelpers.Deserialize<MungeFileHandlerParameters>( parmString );
              
             foreach( ModifyFileType file in parms.Files )
@@ -80,51 +90,15 @@ namespace Synapse.Handlers.FileUtil.UnitTests
                 if( file.Type != ConfigType.None )
                     modifyType = file.Type;
 
-                string expectedResult = File.ReadAllText( $@"{_outputFiles}\{modifyType}.out" );
+                string expectedResult = null;
+                if (config.CreateSettingIfNotFound)
+                    expectedResult = File.ReadAllText( $@"{_outputFiles}\{modifyType}-expected.out" );
+                else
+                    expectedResult = File.ReadAllText( $@"{_outputFiles}\{modifyType}-nonewsettings-expected.out" );
                 Assert.AreEqual( expectedResult, actualResult );
 
             }
-        }
-        [Test]
-        public void ModifyFileWithCreateIfNotFoundFalse()
-        {
-            Utilities.SetupTestFiles( _inputFiles, _workingDirectory );
-            Plan plan = Plan.FromYaml( $@"{_plansRoot}\with-settings-file.yaml" );
-
-            // disable createsettingsifnotfound: only applies to INI and KeyValue
-            // expected results file: nocreate.{type}.out
-            // keep these codes for future reference
-            string configString =
-@"Type: INI
-CreateSettingIfNotFound: false
-BackupSource: true";
-            Dictionary<object, object> newConfig = YamlHelpers.Deserialize( configString );
-
-            plan.Actions[0].Handler.Config.Values = newConfig;
-
-            plan.Start( null, false, true );
-
-            string status = plan.ResultPlan.Actions[0].Result.Status.ToString();
-            Assert.AreEqual( StatusType.Success.ToString(), status );
-
-            string configstring = plan.Actions[0].Handler.Config.GetSerializedValues();
-            MungeFileHandlerConfig config = YamlHelpers.Deserialize<MungeFileHandlerConfig>( configstring );
-
-            string parmString = plan.Actions[0].Parameters.GetSerializedValues();
-            MungeFileHandlerParameters parms = YamlHelpers.Deserialize<MungeFileHandlerParameters>( parmString );
-
-            foreach( ModifyFileType file in parms.Files )
-            {
-                string actualResult = File.ReadAllText( file.Destination );
-
-                ConfigType modifyType = config.Type;
-                if( file.Type != ConfigType.None )
-                    modifyType = file.Type;
-
-                string expectedResult = File.ReadAllText( $@"{_outputFiles}\{modifyType}-nocreate.out" );
-                Assert.AreEqual( expectedResult, actualResult );
-
-            }
+            Utilities.CleanupTestFiles( workingDirectory );
         }
         [Test]
         public void ModifyS3File()

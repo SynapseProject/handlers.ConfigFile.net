@@ -1,2 +1,0 @@
-(OLFCMD_URL\s*=\s*).*?$ , http://newserver:1234
-(ENDUR_JRE\s*=\s*).*?$ , ${1}jdk1.9.0.69

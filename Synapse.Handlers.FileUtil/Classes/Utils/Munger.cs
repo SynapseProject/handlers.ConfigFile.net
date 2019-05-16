@@ -52,6 +52,8 @@ namespace Synapse.Handlers.FileUtil
             destinationStream.Close();
             source.Close();
             destination.Close();
+            transformStream?.Close();
+            transform?.Close();
 
             if (tempFileUsed)
             {
@@ -161,6 +163,8 @@ namespace Synapse.Handlers.FileUtil
             destinationStream.Close();
             source.Close();
             destination.Close();
+            transformStream?.Close();
+            transform?.Close();
 
             if (tempFileUsed)
             {
@@ -205,7 +209,7 @@ namespace Synapse.Handlers.FileUtil
             destinationStream.Close();
             source.Close();
             destination.Close();
-
+            
             if( tempFileUsed)
             {
                 source.Delete();
@@ -332,6 +336,8 @@ namespace Synapse.Handlers.FileUtil
             destinationStream.Close();
             source.Close();
             destination.Close();
+            transformStream?.Close();
+            transform?.Close();
 
             if( tempFileUsed)
             {
@@ -489,7 +495,9 @@ namespace Synapse.Handlers.FileUtil
             destinationStream.Close();
             source.Close();
             destination.Close();
-
+            transformStream?.Close();
+            transform?.Close();
+            
             if( tempFileUsed)
             {
                 source.Delete();

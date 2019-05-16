@@ -13,7 +13,6 @@ Actions:
     Values:
       Files:
       - Source: $WORKING_DIRECTORY\system.ini
-        Destination: $WORKING_DIRECTORY\with-settings-system.ini.new
         SettingsFile:
           Name: $WORKING_DIRECTORY\initransform.csv
         Settings:
@@ -24,7 +23,6 @@ Actions:
         - Key: "[NEWSECTION]:KEY"
           Value: Value for NEWSECTION:KEY
       - Source: $WORKING_DIRECTORY\config.properties
-        Destination: $WORKING_DIRECTORY\with-settings-config.properties.new
         SettingsFile: 
           Name: $WORKING_DIRECTORY\kvptransform.csv
         Type: KeyValue
@@ -34,7 +32,6 @@ Actions:
         - Key: path
           Value: c:\\temp\\newpath\\doc1
       - Source: $WORKING_DIRECTORY\regex.config
-        Destination: $WORKING_DIRECTORY\with-settings-regex.config.new
         SettingsFile: 
           Name: $WORKING_DIRECTORY\regextransform.csv
         Type: Regex
@@ -42,7 +39,6 @@ Actions:
         - Key: (SET\s*ENDUR_VER\s*=\s*).*?$
           Value: ${1}NEW_VERSION_NUMBER_HERE
       - Source: $WORKING_DIRECTORY\xpath.config
-        Destination: $WORKING_DIRECTORY\with-settings-xpath.config.new
         SettingsFile:
           Name: $WORKING_DIRECTORY\xpathtransform.csv
         Type: XPath
@@ -50,7 +46,6 @@ Actions:
         - Key: "//configuration/applicationSettings/MyService.Properties.Settings/setting[@name=\"initVector\"]/value"
           Value: "MyNewValue"
       - Source: $WORKING_DIRECTORY\web.config
-        Destination: $WORKING_DIRECTORY\with-settings-web.config.new
         SettingsFile:
           Name: $WORKING_DIRECTORY\xmltransform.xml
         Type: XmlTransform
